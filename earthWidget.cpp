@@ -191,6 +191,25 @@ void earthWidget::readNodeFiles()
 		return;
 	}
 
+	//查找DOF
+	propeller = NULL;
+	dRudder_L = NULL;
+	osg::Node* foundNode = NULL;
+	foundNode = findNamedNode("dRear", nodeUAV);
+	if (foundNode){
+		osgSim::DOFTransform * weiyi = dynamic_cast<osgSim::DOFTransform *>(foundNode);
+		if (weiyi){
+			propeller = weiyi;
+		}
+		foundNode = findNamedNode("dRudder_L", nodeUAV);
+		if (foundNode){
+			osgSim::DOFTransform * spyCamera = dynamic_cast<osgSim::DOFTransform *>(foundNode);
+			if (spyCamera){
+				dRudder_L = spyCamera;
+			}
+		}
+	}
+
 	nodeShip = osgDB::readNodeFile("./moudles/054Ship.ive");
 	if (NULL == nodeShip)
 	{
@@ -370,76 +389,52 @@ void earthWidget::createLabels()
 	*/
 }
 
-//void earthWidget::addUAVByTrail(string _name, QVector<STRPoint> _vecPoint)
-//{
-//	//osg::ref_ptr<osg::Node> trailNode = createTrail(EOPLANE, _name, _vecPoint);
-//
-//	STRPlane* strUAV = new STRPlane(_name, _vecPoint.at(0).longitude, _vecPoint.at(0).latitude, _vecPoint.at(0).altitude + DEFUAVOFFSET);
-//
-//	osg::ref_ptr<osg::MatrixTransform> mtRootUAV = new osg::MatrixTransform;
-//	//mtRootUAV->setUserData(trailNode);
-//	mtRootUAV->setUserData(createTrailLine());
-//	mtRootUAV->setName(_name);
-//	//加入到飞机根节点
-//	m_PlaneRoot->addChild(mtRootUAV);
-//
-//	osg::ref_ptr<osg::Group> uavGroup = new osg::Group;
-//	uavGroup->addChild(nodeUAV);
-//
-//	osg::ref_ptr<osg::MatrixTransform> mtself = new osg::MatrixTransform;
-//	mtself->setMatrix(osg::Matrixd::scale(100, 100, 100)/**osg::Matrixd::translate(0.0, 0.0, )*/);
-//	mtself->addChild(uavGroup);
-//	mtself->setUserData(strUAV);
-//
-//	//转动矩阵
-//	osg::ref_ptr<osg::MatrixTransform>  mtRotateface = new osg::MatrixTransform;
-//	mtRotateface->addChild(mtself);
-//	mtRotateface->setMatrix(osg::Matrixd::rotate(osg::DegreesToRadians(0.f), osg::X_AXIS,
-//		osg::DegreesToRadians(0.f), osg::Y_AXIS,
-//		osg::DegreesToRadians(0.0f), osg::Z_AXIS));
-//	//g_mtUAVRotate = mtRotateface;
-//	osg::ref_ptr<osg::MatrixTransform> mtUAV = new osg::MatrixTransform;
-//	mtUAV->addChild(mtRotateface);
-//
-//	const osgEarth::SpatialReference* latLong = osgEarth::SpatialReference::get("wgs84");
-//	osgEarth::GeoPoint point(latLong, strUAV->longitude, strUAV->latitude, strUAV->altitude, osgEarth::ALTMODE_ABSOLUTE);
-//	osg::Matrix matrix;
-//	point.createLocalToWorld(matrix);
-//
-//	mtUAV->setMatrix(matrix);
-//	mtUAV->setUserData(strUAV);
-//	mtRootUAV->addChild(mtUAV);
-//
-//	//查找DOF
-//	osgSim::DOFTransform * propeller = NULL;
-//	osgSim::DOFTransform * dRudder_L = NULL;
-//	osg::Node* foundNode = NULL;
-//	foundNode = findNamedNode("dRear", nodeUAV);
-//	if (foundNode){
-//		osgSim::DOFTransform * weiyi = dynamic_cast<osgSim::DOFTransform *>(foundNode);
-//		if (weiyi){
-//			propeller = weiyi;
-//		}
-//		foundNode = findNamedNode("dRudder_L", nodeUAV);
-//		if (foundNode){
-//			osgSim::DOFTransform * spyCamera = dynamic_cast<osgSim::DOFTransform *>(foundNode);
-//			if (spyCamera){
-//				dRudder_L = spyCamera;
-//			}
-//		}
-//	}
-//
-//	osg::ref_ptr<osgSim::DOFTransform> pro = new osgSim::DOFTransform;
-//	pro->addChild(propeller);
-//
-//	osg::ref_ptr<osgSim::DOFTransform> dru = new osgSim::DOFTransform;
-//	dru->addChild(dRudder_L);
-//
-//	UAVTrail* ut = new UAVTrail(mtRootUAV, propeller, dRudder_L);
-//	mtUAV->addUpdateCallback(ut);
-//
-//	//grid->updateInfo(EOPLANE, _name, strUAV->longitude, strUAV->latitude, strUAV->altitude, strUAV->heading, strUAV->pitching, strUAV->roll, strUAV->speed);
-//}
+void earthWidget::addUAVWithoutTrail(string _name, QVector<STRPoint> _vecPoint)
+{
+
+	STRPlane* strUAV = new STRPlane(_name, _vecPoint.at(0).longitude, _vecPoint.at(0).latitude, _vecPoint.at(0).altitude + DEFUAVOFFSET);
+
+	osg::ref_ptr<osg::MatrixTransform> mtRootUAV = new osg::MatrixTransform;
+
+	//mtRootUAV->setUserData(createTrailLine());
+	mtRootUAV->setName(_name);
+	//加入到飞机根节点
+	m_PlaneRoot->addChild(mtRootUAV);
+
+	osg::ref_ptr<osg::Group> uavGroup = new osg::Group;
+	uavGroup->addChild(nodeUAV);
+
+	osg::ref_ptr<osg::MatrixTransform> mtself = new osg::MatrixTransform;
+	mtself->setMatrix(osg::Matrixd::scale(100, 100, 100)/**osg::Matrixd::translate(0.0, 0.0, )*/);
+	mtself->addChild(uavGroup);
+	//mtself->setUserData(strUAV);
+
+	//转动矩阵
+	osg::ref_ptr<osg::MatrixTransform>  mtRotateface = new osg::MatrixTransform;
+	mtRotateface->addChild(mtself);
+	mtRotateface->setMatrix(osg::Matrixd::rotate(osg::DegreesToRadians(0.f), osg::X_AXIS,
+		osg::DegreesToRadians(0.f), osg::Y_AXIS,
+		osg::DegreesToRadians(0.0f), osg::Z_AXIS));
+	//g_mtUAVRotate = mtRotateface;
+	osg::ref_ptr<osg::MatrixTransform> mtUAV = new osg::MatrixTransform;
+	mtUAV->addChild(mtRotateface);
+	//mtUAV->setUserData(createTrailLine());
+
+	const osgEarth::SpatialReference* latLong = osgEarth::SpatialReference::get("wgs84");
+	osgEarth::GeoPoint point(latLong, strUAV->longitude, strUAV->latitude, strUAV->altitude, osgEarth::ALTMODE_ABSOLUTE);
+	osg::Matrix matrix;
+	point.createLocalToWorld(matrix);
+
+	mtUAV->setMatrix(matrix);
+	mtUAV->setUserData(strUAV);
+	mtRootUAV->addChild(mtUAV);
+
+	//UAVCALLBACKUpdateTrail* ut = new UAVCALLBACKUpdateTrail(mtUAV, mtRotateface, m_pTrackNode, strUAV, propeller, dRudder_L, createTrail(EOPLANE, _name, _vecPoint));
+	UAVCallBack* ut = new UAVCallBack(mtRootUAV, createTrail(EOPLANE, _name, _vecPoint));
+	//UAVCallBack* ut = new UAVCallBack(mtUAV, mtRotateface, m_pTrackNode, strUAV, propeller, dRudder_L, createTrail(EOPLANE, _name, _vecPoint));
+	mtUAV->addUpdateCallback(ut);
+
+}
 //void earthWidget::addUAV(string name, double _long, double _lat, double _altitude)
 //{
 //	G_STRPlane.longitude = _long;
@@ -489,6 +484,7 @@ void earthWidget::createLabels()
 //	UAVTrailCallBack = new UAVTrail(/*positionesave*/dynamic_cast<osg::Geode*>(goede), m_pTrackUAV);
 //	mtUAV->addUpdateCallback(UAVTrailCallBack);
 //}
+
 //void earthWidget::addShip(string name, double _long, double _lat, double _altitude)
 //{
 //	G_STRShip.longitude = _long;
@@ -638,30 +634,13 @@ void earthWidget::addUAVByTrail(string _name, QVector<STRPoint> _vecPoint)
 	mtUAV->setUserData(strUAV);
 	mtRootUAV->addChild(mtUAV);
 
-	//查找DOF
-	osgSim::DOFTransform * propeller = NULL;
-	osgSim::DOFTransform * dRudder_L = NULL;
-	osg::Node* foundNode = NULL;
-	foundNode = findNamedNode("dRear", nodeUAV);
-	if (foundNode){
-		osgSim::DOFTransform * weiyi = dynamic_cast<osgSim::DOFTransform *>(foundNode);
-		if (weiyi){
-			propeller = weiyi;
-		}
-		foundNode = findNamedNode("dRudder_L", nodeUAV);
-		if (foundNode){
-			osgSim::DOFTransform * spyCamera = dynamic_cast<osgSim::DOFTransform *>(foundNode);
-			if (spyCamera){
-				dRudder_L = spyCamera;
-			}
-		}
-	}
+	
 
-	osg::ref_ptr<osgSim::DOFTransform> pro = new osgSim::DOFTransform;
-	pro->addChild(propeller);
-
-	osg::ref_ptr<osgSim::DOFTransform> dru = new osgSim::DOFTransform;
-	dru->addChild(dRudder_L);
+	//osg::ref_ptr<osgSim::DOFTransform> pro = new osgSim::DOFTransform;
+	//pro->addChild(propeller);
+	//
+	//osg::ref_ptr<osgSim::DOFTransform> dru = new osgSim::DOFTransform;
+	//dru->addChild(dRudder_L);
 
 	UVATrailCallBack* ut = new UVATrailCallBack(mtUAV, mtRotateface, m_pTrackNode, strUAV, propeller, dRudder_L);
 	mtUAV->addUpdateCallback(ut);

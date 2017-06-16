@@ -261,111 +261,111 @@ bool MousePositionHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIAc
 }
 
 
-MyTrailCallBack::MyTrailCallBack(osg::Geode* geode, osgGA::CameraManipulator* nodeTM)
-{
-}
-
-
-void MyTrailCallBack::updateDrawLine()
-{
-
-}
-
-void MyTrailCallBack::operator()(osg::Node* node, osg::NodeVisitor* nv)
-{
-	updateData();
-	//osg::MatrixTransform* mtTransform = static_cast<osg::MatrixTransform*>(node);
-	osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(lineGeo->getDrawable(0));
-	osg::Vec3Array* ver3Array = dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
-	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _height, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
-	osg::Matrix mt;
-	point.createLocalToWorld(mt);
-	mtSelf->setMatrix(mt);
-
-	mtRotate->setMatrix(osg::Matrixd::rotate(									\
-		osg::DegreesToRadians(-(_roll - _rollPre)), osg::X_AXIS,				\
-		osg::DegreesToRadians(-(_pitch - _pitchPre)), osg::Y_AXIS,				\
-		osg::DegreesToRadians(-(_heading - _headingPre) + _headingOffset), osg::Z_AXIS));
-	_headingPre = _heading;
-	_pitchPre = _pitch;
-	_rollPre = _roll;
-	
-	//无人机矩阵的转动
-	//...
-	if (nv && nv->getFrameStamp() && lineGeo)
-	{
-		if (frisFrame)
-		{
-			ver3Array->clear();
-			frisFrame = false;
-		}
-
-		//osg::Matrix matrix = mtTransform->getMatrix();
-		osg::Vec3 crtVec3 = mt.getTrans();
-		osg::Vec3 deltaVec3 = crtVec3 - preVec3;
-		ver3Array->push_back(deltaVec3);
-		ver3Array->dirty();
-
-		osg::DrawArrays* da = dynamic_cast<osg::DrawArrays*>(geometry->getPrimitiveSet(0));
-		da->setFirst(0);
-		da->setCount(ver3Array->size());
-		da->dirty();
-	}
-
-	traverse(node, nv);
-}
-
-//UAVTrail::UAVTrail(osg::Geode* geode, osgGA::CameraManipulator* nodeTM)
+//MyTrailCallBack::MyTrailCallBack(osg::Geode* geode, osgGA::CameraManipulator* nodeTM)
 //{
-UAVTrail::UAVTrail(osg::MatrixTransform* _mtObjectRoot, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L)
-{
-	mtRotate = dynamic_cast<osg::MatrixTransform*>(_mtObjectRoot->getChild(0)->asGroup()->getChild(0));
-	mtSelf = dynamic_cast<osg::MatrixTransform*>(mtRotate->getChild(0));
-	lineGeo = dynamic_cast<osg::Geode*>(_mtObjectRoot->getUserData());
-	_UAVdata = dynamic_cast<STRPlane*>(mtSelf->getUserData());
-	_longitude = _UAVdata->longitude;
-	_latitude = _UAVdata->latitude;
-	_height = _UAVdata->altitude + DEFUAVOFFSET;
-	frisFrame = true;
-	_speed = 0.0;
-	_heading = 0.0;
-	_headingPre = 0.0;
-	_pitch = 0.0;
-	_pitchPre = 0.0;
-	_roll = 0.0;
-	_rollPre = 0.0;
-	_degreePropeller = 0;
-	_degreeDRudder_L = 0;
-	_headingOffset = 0.0;
-	
-	propeller = _propeller;
-	dRudder_L = _dRudder_L;
+//}
+//
+//
+//void MyTrailCallBack::updateDrawLine()
+//{
+//
+//}
+//
+//void MyTrailCallBack::operator()(osg::Node* node, osg::NodeVisitor* nv)
+//{
+//	updateData();
+//	//osg::MatrixTransform* mtTransform = static_cast<osg::MatrixTransform*>(node);
+//	osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(lineGeo->getDrawable(0));
+//	osg::Vec3Array* ver3Array = dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
+//	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _height, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
+//	osg::Matrix mt;
+//	point.createLocalToWorld(mt);
+//	mtSelf->setMatrix(mt);
+//
+//	mtRotate->setMatrix(osg::Matrixd::rotate(									\
+//		osg::DegreesToRadians(-(_roll - _rollPre)), osg::X_AXIS,				\
+//		osg::DegreesToRadians(-(_pitch - _pitchPre)), osg::Y_AXIS,				\
+//		osg::DegreesToRadians(-(_heading - _headingPre) + _headingOffset), osg::Z_AXIS));
+//	_headingPre = _heading;
+//	_pitchPre = _pitch;
+//	_rollPre = _roll;
+//	
+//	//无人机矩阵的转动
+//	//...
+//	if (nv && nv->getFrameStamp() && lineGeo)
+//	{
+//		if (frisFrame)
+//		{
+//			ver3Array->clear();
+//			frisFrame = false;
+//		}
+//
+//		//osg::Matrix matrix = mtTransform->getMatrix();
+//		osg::Vec3 crtVec3 = mt.getTrans();
+//		osg::Vec3 deltaVec3 = crtVec3 - preVec3;
+//		ver3Array->push_back(deltaVec3);
+//		ver3Array->dirty();
+//
+//		osg::DrawArrays* da = dynamic_cast<osg::DrawArrays*>(geometry->getPrimitiveSet(0));
+//		da->setFirst(0);
+//		da->setCount(ver3Array->size());
+//		da->dirty();
+//	}
+//
+//	traverse(node, nv);
+//}
+//
+////UAVTrail::UAVTrail(osg::Geode* geode, osgGA::CameraManipulator* nodeTM)
+////{
+//UAVTrail::UAVTrail(osg::MatrixTransform* _mtObjectRoot, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L)
+//{
+//	mtRotate = dynamic_cast<osg::MatrixTransform*>(_mtObjectRoot->getChild(0)->asGroup()->getChild(0));
+//	mtSelf = dynamic_cast<osg::MatrixTransform*>(mtRotate->getChild(0));
+//	lineGeo = dynamic_cast<osg::Geode*>(_mtObjectRoot->getUserData());
+//	_UAVdata = dynamic_cast<STRPlane*>(mtSelf->getUserData());
+//	_longitude = _UAVdata->longitude;
+//	_latitude = _UAVdata->latitude;
+//	_height = _UAVdata->altitude + DEFUAVOFFSET;
+//	frisFrame = true;
+//	_speed = 0.0;
+//	_heading = 0.0;
+//	_headingPre = 0.0;
+//	_pitch = 0.0;
+//	_pitchPre = 0.0;
+//	_roll = 0.0;
+//	_rollPre = 0.0;
+//	_degreePropeller = 0;
+//	_degreeDRudder_L = 0;
+//	_headingOffset = 0.0;
+//	
+//	propeller = _propeller;
+//	dRudder_L = _dRudder_L;
+//
+//	SrclatLong = osgEarth::SpatialReference::create("wgs84");
+//	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _height, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
+//	osg::Matrix mt;
+//	point.createLocalToWorld(mt);
+//	preVec3 = mt.getTrans();
+//}
 
-	SrclatLong = osgEarth::SpatialReference::create("wgs84");
-	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _height, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
-	osg::Matrix mt;
-	point.createLocalToWorld(mt);
-	preVec3 = mt.getTrans();
-}
-
-void UAVTrail::updateData()
-{
-	G_mutex.lock();
-	_longitude = _UAVdata->longitude;
-	_latitude  = _UAVdata->latitude;
-	_height    = _UAVdata->altitude + DEFUAVOFFSET;
-	_heading   = _UAVdata->heading;
-	_pitch     = _UAVdata->pitching;
-	_roll      = _UAVdata->roll;
-	_speed     = _UAVdata->speed;
-	G_mutex.unlock();
-	if (_degreePropeller >= 360)
-	{
-		_degreePropeller = 0;
-	}
-	_degreePropeller += 20.0;
-	_degreeDRudder_L = 0;
-}
+//void UAVTrail::updateData()
+//{
+//	G_mutex.lock();
+//	_longitude = _UAVdata->longitude;
+//	_latitude  = _UAVdata->latitude;
+//	_height    = _UAVdata->altitude + DEFUAVOFFSET;
+//	_heading   = _UAVdata->heading;
+//	_pitch     = _UAVdata->pitching;
+//	_roll      = _UAVdata->roll;
+//	_speed     = _UAVdata->speed;
+//	G_mutex.unlock();
+//	if (_degreePropeller >= 360)
+//	{
+//		_degreePropeller = 0;
+//	}
+//	_degreePropeller += 20.0;
+//	_degreeDRudder_L = 0;
+//}
 
 //VehicleTrail::VehicleTrail(osg::Geode* geode, osgGA::NodeTrackerManipulator* nodeTM)
 //{
@@ -523,13 +523,6 @@ void UVATrailCallBack::updateData()
 	if (dRudder_L){
 		dRudder_L->setCurrentHPR(osg::Vec3(0.0, 0.0, osg::DegreesToRadians(_degreeDRudder_L)));
 	}
-
-	//if (NULL != mtRotate)
-	//{
-	//	mtRotate->setMatrix(mtRotate->getMatrix()*osg::Matrixd::rotate(osg::DegreesToRadians(0.f), osg::X_AXIS,
-	//		osg::DegreesToRadians(0.f), osg::Y_AXIS,
-	//		osg::DegreesToRadians(-_heading), osg::Z_AXIS));
-	//}
 	
 }
 
@@ -562,12 +555,6 @@ void ShipTrailCallBack::updateData()
 	_roll      = 0.0;
 	G_mutex.unlock();
 
-	//if (NULL != mtRotate)
-	//{
-	//	mtRotate->setMatrix(mtRotate->getMatrix()*osg::Matrixd::rotate(osg::DegreesToRadians(0.f), osg::X_AXIS,
-	//		osg::DegreesToRadians(0.f), osg::Y_AXIS,
-	//		osg::DegreesToRadians(-_heading), osg::Z_AXIS));
-	//}
 }
 
 VehicleTrailCallBack::VehicleTrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRVehicle* VehicleData)
@@ -585,7 +572,7 @@ VehicleTrailCallBack::VehicleTrailCallBack(osg::MatrixTransform* _mtSelf, osg::M
 	_headingOffset = 180.0;
 	_VehicleData = VehicleData;
 	SrclatLong = osgEarth::SpatialReference::create("wgs84");
-	//mtRotate = dynamic_cast<osg::MatrixTransform*>(mtSelf->getChild(0));
+
 }
 
 void VehicleTrailCallBack::updateData()
@@ -623,5 +610,142 @@ void VehicleTrailCallBack::updateData()
 	//}
 }
 
+
+
+
+
+void UAVCALLBACKUpdateTrail::operator()(osg::Node* node, osg::NodeVisitor* nv)
+{
+	updateData();
+	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _height, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
+	osg::Matrix mt;
+	point.createLocalToWorld(mt);
+	mtSelf->setMatrix(mt);
+
+	mtRotate->setMatrix(osg::Matrixd::rotate(\
+		osg::DegreesToRadians(-(_roll - _rollPre)), osg::X_AXIS, \
+		osg::DegreesToRadians(-(_pitch - _pitchPre)), osg::Y_AXIS, \
+		osg::DegreesToRadians(-(_heading - _headingPre) + _headingOffset), osg::Z_AXIS));
+	_headingPre = _heading;
+	_pitchPre = _pitch;
+	_rollPre = _roll;
+
+	osg::ref_ptr<osgEarth::Symbology::Geometry> _trail = featureNode->getFeature()->getGeometry();
+	_trail->push_back(_longitude, _latitude, _height);
+	featureNode->init();
+	//osgEarth::Annotation::fea FeatureNode* geom = dynamic_cast<osg::Geometry*>(lineGeo->getDrawable(0));
+	//osg::Vec3Array *vertices = dynamic_cast<osg::Vec3Array*>(geom->getVertexArray());
+
+	//	if (nv && nv->getFrameStamp() && lineGeo)
+	//	{
+	//		if (frisFrame)
+	//		{
+	//			ver3Array->clear();
+	//			frisFrame = false;
+	//		}
+	//
+	//		//osg::Matrix matrix = mtTransform->getMatrix();
+	//		osg::Vec3 crtVec3 = mt.getTrans();
+	//		osg::Vec3 deltaVec3 = crtVec3 - preVec3;
+	//		ver3Array->push_back(deltaVec3);
+	//		ver3Array->dirty();
+	//
+	//		osg::DrawArrays* da = dynamic_cast<osg::DrawArrays*>(geometry->getPrimitiveSet(0));
+	//		da->setFirst(0);
+	//		da->setCount(ver3Array->size());
+	//		da->dirty();
+
+	//if (nv && lineGeo && nv->getFrameStamp())
+	//{
+	//	if (lineGeo){
+	//		if (FirstFrame){
+	//			vertices->clear();
+	//			FirstFrame = false;
+	//		}
+	//
+	//		osg::Vec3 crtVec3 = mt.getTrans();
+	//		osg::Vec3 deltaVec3 = crtVec3 - preVec3;
+	//		vertices->push_back(deltaVec3);
+	//		vertices->dirty();
+	//
+	//		vertices->dirty();
+	//		osg::DrawArrays * ff = dynamic_cast<osg::DrawArrays*>(geom->getPrimitiveSet(0));
+	//		ff->setFirst(0);
+	//		ff->setCount(vertices->size());
+	//		ff->dirty();
+	//	}
+	//}
+	traverse(node, nv);
+}
+
+UAVCALLBACKUpdateTrail::UAVCALLBACKUpdateTrail(osg::MatrixTransform* _mtObject, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, \
+	STRPlane* UAVdata, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L, osgEarth::Annotation::FeatureNode* _featureNode)
+{
+	mtSelf = _mtObject;
+	mtRotate = _mtRotate;
+	nodeTrack = nodeTM;
+	_speed = 0.0;
+	_heading = 0.0;
+	_headingPre = 0.0;
+	_pitch = 0.0;
+	_pitchPre = 0.0;
+	_roll = 0.0;
+	_rollPre = 0.0;
+	_degreePropeller = 0;
+	_degreeDRudder_L = 0;
+	_headingOffset = 0.0;
+	_UAVdata = UAVdata;
+	propeller = _propeller;
+	dRudder_L = _dRudder_L;
+	FirstFrame = true;
+	SrclatLong = osgEarth::SpatialReference::create("wgs84");
+	//lineGeo = dynamic_cast<osg::Geode*>(_lineGeo);
+	featureNode = _featureNode;
+
+	//osgEarth::GeoPoint point(SrclatLong, UAVdata->longitude, UAVdata->latitude, UAVdata->altitude, osgEarth::ALTMODE_ABSOLUTE);
+	//osg::Matrix matrix;
+	//point.createLocalToWorld(matrix);
+	//preVec3 = matrix.getTrans();
+}
+
+void callBackBase::operator()(osg::Node* node, osg::NodeVisitor* nv)
+{
+	updataCommonData();
+	updateSelfData();
+
+	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _altitude, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
+	osg::Matrix mt;
+	point.createLocalToWorld(mt);
+	mtSelf->setMatrix(mt);
+
+	mtRotate->setMatrix(osg::Matrixd::rotate(\
+		osg::DegreesToRadians(-(_roll - _rollPre)), osg::X_AXIS, \
+		osg::DegreesToRadians(-(_pitch - _pitchPre)), osg::Y_AXIS, \
+		osg::DegreesToRadians(-(_heading - _headingPre) + _headingOffset), osg::Z_AXIS));
+
+	_headingPre = _heading;
+	_pitchPre = _pitch;
+	_rollPre = _roll;
+
+	if (_needDrawLine)
+	{
+		osg::ref_ptr<osgEarth::Symbology::Geometry> _trail = featureNode->getFeature()->getGeometry();
+		_trail->push_back(_longitude, _latitude, _altitude);
+		featureNode->init();
+	}
+}
+
+void callBackBase::updataCommonData()
+{
+	G_mutex.lock();
+	_longitude = strData->longitude;
+	_latitude  = strData->latitude;
+	_altitude  = strData->altitude;
+	_heading   = strData->heading;
+	_pitch     = strData->pitching;
+	_roll      = strData->roll;
+	_speed     = strData->speed;
+	G_mutex.unlock();
+}
 
 

@@ -163,7 +163,7 @@ void earthWnd::updateUAVPosition(string name, double _long, double _lat, double 
 
 void earthWnd::addUAV(string name, QVector<STRPoint> _vecPoint)
 {
-	earth->addUAVByTrail(name, _vecPoint);
+	earth->addUAVWithoutTrail(name, _vecPoint);
 	ComboUAV->addItem(QString::fromStdString(name));
 }
 

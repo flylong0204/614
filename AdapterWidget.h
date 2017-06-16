@@ -37,6 +37,7 @@
 #include <osgEarthUtil/LatLongFormatter>
 #include <osgEarth/ElevationQuery>
 #include <osgUtil/LineSegmentIntersector>
+#include <osgEarthAnnotation/FeatureNode>
 #include <QMutex>
 
 #include "Common.h"
@@ -203,66 +204,66 @@ public:
 
 
 //Î´»­º½Ïß
-class  MyTrailCallBack : public osg::NodeCallback
-{
-public:
-	inline MyTrailCallBack(){};
-	MyTrailCallBack(osg::Geode* geode, osgGA::CameraManipulator* nodeTM);
-	virtual inline ~MyTrailCallBack(){};
-	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
-	virtual void updateData() = 0;
-	//void updateShowInfo();
-	void updateDrawLine();
-
-	//osg::Geode* geodeToFollow;
-	bool frisFrame;
-	double _latitude;
-	double _longitude;
-	double _height;
-	double _speed;
-	double _heading;		//º½Ïò½Ç
-	double _pitch;
-	double _roll;
-	double _headingPre;
-	double _pitchPre;
-	double _rollPre;
-	double _headingOffset;
-	osgGA::CameraManipulator* nodeTrack;
-	const osgEarth::SpatialReference* SrclatLong;
-	osg::MatrixTransform* mtSelf;
-	osg::MatrixTransform* mtRotate;
-	QMutex G_mutex;
-	osg::Geode* lineGeo;
-
-
-	//double _latitude, _longitude, _height, _speed, _heading, _pitch, _roll;
-	//float _degreePropeller;
-	//float _degreeDRudder_L;
-	//short _crtPitch;			//µ±Ç°¸©Ñö
-	//short _crtHeading;          //¹ßµ¼º½Ïò
-	////short _crtPitch;          //¹ßµ¼¸©Ñö
-	//short _crtRool;             //¹ßµ¼ºá¹ö
-	//osgGA::CameraManipulator* nodeTrack;
-	//const osgEarth::SpatialReference* SrclatLong;
-	osg::Vec3 preVec3;
-};
-
-class UAVTrail : public MyTrailCallBack
-{
-public:
-	//UAVTrail(osg::Geode* geode, osgGA::CameraManipulator* nodeTM);
-	UAVTrail(osg::MatrixTransform* _mtObjectRoot, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L);
-	virtual inline ~UAVTrail(){};
-	virtual void updateData();
-
-private:
-	STRPlane* _UAVdata;
-
-	double _degreePropeller;
-	double _degreeDRudder_L;
-	osg::ref_ptr<osgSim::DOFTransform> propeller;
-	osg::ref_ptr<osgSim::DOFTransform> dRudder_L;
-};
+//class  MyTrailCallBack : public osg::NodeCallback
+//{
+//public:
+//	inline MyTrailCallBack(){};
+//	MyTrailCallBack(osg::Geode* geode, osgGA::CameraManipulator* nodeTM);
+//	virtual inline ~MyTrailCallBack(){};
+//	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
+//	virtual void updateData() = 0;
+//	//void updateShowInfo();
+//	void updateDrawLine();
+//
+//	//osg::Geode* geodeToFollow;
+//	bool frisFrame;
+//	double _latitude;
+//	double _longitude;
+//	double _height;
+//	double _speed;
+//	double _heading;		//º½Ïò½Ç
+//	double _pitch;
+//	double _roll;
+//	double _headingPre;
+//	double _pitchPre;
+//	double _rollPre;
+//	double _headingOffset;
+//	osgGA::CameraManipulator* nodeTrack;
+//	const osgEarth::SpatialReference* SrclatLong;
+//	osg::MatrixTransform* mtSelf;
+//	osg::MatrixTransform* mtRotate;
+//	QMutex G_mutex;
+//	osg::Geode* lineGeo;
+//
+//
+//	//double _latitude, _longitude, _height, _speed, _heading, _pitch, _roll;
+//float _degreePropeller;
+//float _degreeDRudder_L;
+//short _crtPitch;			//µ±Ç°¸©Ñö
+//short _crtHeading;          //¹ßµ¼º½Ïò
+////short _crtPitch;          //¹ßµ¼¸©Ñö
+//short _crtRool;             //¹ßµ¼ºá¹ö
+//osgGA::CameraManipulator* nodeTrack;
+//const osgEarth::SpatialReference* SrclatLong;
+//	osg::Vec3 preVec3;
+//};
+//
+//class UAVTrail : public MyTrailCallBack
+//{
+//public:
+//	//UAVTrail(osg::Geode* geode, osgGA::CameraManipulator* nodeTM);
+//	UAVTrail(osg::MatrixTransform* _mtObjectRoot, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L);
+//	virtual inline ~UAVTrail(){};
+//	virtual void updateData();
+//
+//private:
+//	STRPlane* _UAVdata;
+//
+//	double _degreePropeller;
+//	double _degreeDRudder_L;
+//	osg::ref_ptr<osgSim::DOFTransform> propeller;
+//	osg::ref_ptr<osgSim::DOFTransform> dRudder_L;
+//};
 
 //class ShipTrail : public MyTrailCallBack
 //{
@@ -288,6 +289,85 @@ private:
 //
 //};
 
+class callBackBase : public osg::NodeCallback
+{
+public:
+	inline callBackBase(){};
+	callBackBase(osg::MatrixTransform* _mtObjectRoot, osgEarth::Annotation::FeatureNode* _featureNode = nullptr)
+	//callBackBase(osg::MatrixTransform* _mtObject, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, \
+	//	STRPlane* UAVdata, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L, osgEarth::Annotation::FeatureNode* _featureNode)
+	{
+		
+		if (1)
+		{
+			SrclatLong = osgEarth::SpatialReference::create("wgs84");
+			osg::ref_ptr<osg::MatrixTransform> mtObject = dynamic_cast<osg::MatrixTransform*>(_mtObjectRoot->getChild(0));
+			strData  = dynamic_cast<STRPlane*>(mtObject->getUserData());
+			mtRotate = dynamic_cast<osg::MatrixTransform*>(mtObject->getChild(0));
+			mtSelf   = dynamic_cast<osg::MatrixTransform*>(mtRotate->getChild(0));
+			featureNode = _featureNode;
+
+			//mtSelf = _mtObject;
+			//mtRotate = _mtRotate;
+			//strData = UAVdata;
+			//featureNode = _featureNode;
+
+			//_latitude      = strData->latitude;
+			//_longitude     = strData->longitude;
+			//_altitude	   = strData->altitude;
+			//_speed  	   = strData->speed;
+			_heading 	   = 0.0;
+			_pitch 		   = 0.0;
+			_roll		   = 0.0;
+			_headingPre    = 0.0;
+			_pitchPre	   = 0.0;
+			_rollPre	   = 0.0;
+			_headingOffset = 0.0;
+
+		}
+	};
+	virtual inline ~callBackBase(){};
+	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
+	virtual void updataCommonData();
+	virtual void updateSelfData() = 0;
+
+	double _latitude;
+	double _longitude;
+	double _altitude;
+	double _speed;
+	double _heading;		
+	double _pitch;
+	double _roll;
+	double _headingPre;
+	double _pitchPre;
+	double _rollPre;
+	double _headingOffset;
+	bool   _needDrawLine;
+
+	STRPlane* strData;
+	osg::MatrixTransform* mtSelf;
+	osg::MatrixTransform* mtRotate;
+	const osgEarth::SpatialReference* SrclatLong;
+	osgEarth::Annotation::FeatureNode* featureNode;	
+
+	QMutex G_mutex;
+	//osgGA::CameraManipulator* nodeTrack;
+};
+
+class UAVCallBack : public callBackBase
+{
+public:
+	UAVCallBack(osg::MatrixTransform* mtObjectRoot, osgEarth::Annotation::FeatureNode* _featureNode = nullptr) 
+		:callBackBase(mtObjectRoot, _featureNode){};
+	//UAVCallBack(osg::MatrixTransform* _mtObject, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, \
+		//	STRPlane* UAVdata, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L, osgEarth::Annotation::FeatureNode* _featureNode)\
+		//	: callBackBase(_mtObject, _mtRotate, nodeTM, UAVdata, _propeller, _dRudder_L, _featureNode){};
+	virtual inline ~UAVCallBack(){};
+	virtual void updateSelfData(){};
+
+private:
+
+};
 
 
 
@@ -296,7 +376,6 @@ class  TrailBaseCallBack : public osg::NodeCallback
 {
 public:
 	inline TrailBaseCallBack(){};
-	TrailBaseCallBack(osg::MatrixTransform* _mtSelf, osgGA::CameraManipulator* nodeTM);
 	virtual inline ~TrailBaseCallBack(){};
 	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
 	virtual void updateData() = 0;
@@ -320,13 +399,16 @@ public:
 	QMutex G_mutex;
 };
 
+
+
 class UVATrailCallBack : public TrailBaseCallBack
 {
 public:
+	UVATrailCallBack(){};
 	UVATrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRPlane* UAVdata, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L);
 	virtual inline ~UVATrailCallBack(){};
 	virtual void updateData();
-private:
+
 	STRPlane* _UAVdata;
 	
 	double _degreePropeller;
@@ -334,6 +416,20 @@ private:
 	osg::ref_ptr<osgSim::DOFTransform> propeller;
 	osg::ref_ptr<osgSim::DOFTransform> dRudder_L;
 
+};
+
+class UAVCALLBACKUpdateTrail : public UVATrailCallBack
+{
+public:
+	UAVCALLBACKUpdateTrail(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRPlane* UAVdata, osgSim::DOFTransform* _propeller, \
+		osgSim::DOFTransform* _dRudder_L, osgEarth::Annotation::FeatureNode* _featureNode);
+	virtual inline ~UAVCALLBACKUpdateTrail(){};
+	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
+	osg::Vec3 preVec3;
+	//osg::Geode* lineGeo;
+	osgEarth::Annotation::FeatureNode* featureNode;
+	//virtual void updateData();
+	bool FirstFrame;
 };
 
 class ShipTrailCallBack : public TrailBaseCallBack

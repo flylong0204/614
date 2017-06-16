@@ -76,6 +76,7 @@ public:
 	void addUAVByTrail(string name, QVector<STRPoint> _vecPoint);
 	void addShipByTrail(string name, QVector<STRPoint> _vecPoint);
 	void addVehicleByTrail(string name, QVector<STRPoint> _vecPoint);
+	void addUAVWithoutTrail(string name, QVector<STRPoint> _vecPoint);
 	
 	void delALLSameNode(osg::Group* group);
 	void delALLUAV();
@@ -142,6 +143,8 @@ protected:
 private:
 
 	static int mInterval, _count;
+	osgSim::DOFTransform * propeller;
+	osgSim::DOFTransform * dRudder_L;
 	//OSGProfile* oceanDialog;
 	osg::ref_ptr<osgViewer::Viewer> _view;
 	osg::ref_ptr<osgEarth::MapNode> _pMapNode;
