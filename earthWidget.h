@@ -36,7 +36,6 @@
 #include "NodeMatrix.h"
 #include "AdapterWidget.h"
 #include "ctime.h"
-#include "OsgTextNode.h"
 #include "PickHandle.h"
 #include "global.h"
 #include "showInfoUpdate.h"
@@ -55,9 +54,11 @@ public:
 
 	void addLabel();
 
-	//void addUAV(string name, double _long, double _lat, double _altitude);
-	//void addShip(string name, double _long, double _lat, double _altitude);
-	//void addVehicle(string name, double _long, double _lat, double _altitude);
+	void addModel(int _type, string _name, QVector<STRPoint> _vecPoint, int _trailModel = ETWHOLE);
+	void addModel(int _type, osg::Group* _groupRoot, osg::Node* _node, string _name, int _scale, int _offset, double _long, double _lat, double _altitude, int _trailModel = ETWHOLE);
+	void addUAV(string name, double _long, double _lat, double _altitude);
+	void addShip(string name, double _long, double _lat, double _altitude);
+	void addVehicle(string name, double _long, double _lat, double _altitude);
 
 	void delObject(int _Object, string _name);
 	//void delNodeAndTrail(int _Object, string _name, osg::Node* _node, osg::Group* _mtRoot, osgEarth::Annotation::FeatureNode* _fn, double _long, double _lat);
@@ -65,17 +66,19 @@ public:
 	//void delShip(string name);
 	//void delVehicle(string name);
 
-	void updateUAVPosition(string name, osg::Vec3d vec3d, double _heading, double _pitch, double _roll, double _speed);
-	void updateShipPosition(string name, double _long, double _lat, double _altitude, double _heading, double _speed);
-	void updateVehiclePosition(string name, double _long, double _lat, double _altitude, double _heading, double _speed);
+	void updateModelPos(int _type, string name, double _long, double _lat, double _altitude, double _heading, double _pitch, double _roll, double _speed);
+	void updateModelPos(int _type, string name, string currentObjectName, osg::Group* _group, int offset, STRDATA* strData);
+	//void updateUAVPosition(string name, osg::Vec3d vec3d, double _heading, double _pitch, double _roll, double _speed);
+	//void updateShipPosition(string name, double _long, double _lat, double _altitude, double _heading, double _speed);
+	//void updateVehiclePosition(string name, double _long, double _lat, double _altitude, double _heading, double _speed);
 
 	//创建航线
 	FeatureNode* createTrail(int _target, string _name, QVector<STRPoint> _vecPoint);
 
 	//osg::Vec3dArray					   _vec3dArray;
-	void addUAVByTrail(string name, QVector<STRPoint> _vecPoint);
-	void addShipByTrail(string name, QVector<STRPoint> _vecPoint);
-	void addVehicleByTrail(string name, QVector<STRPoint> _vecPoint);
+	//void addUAVByTrail(string name, QVector<STRPoint> _vecPoint);
+	//void addShipByTrail(string name, QVector<STRPoint> _vecPoint);
+	//void addVehicleByTrail(string name, QVector<STRPoint> _vecPoint);
 	void addUAVWithoutTrail(string name, QVector<STRPoint> _vecPoint);
 	
 	void delALLSameNode(osg::Group* group);
@@ -133,6 +136,12 @@ protected:
 	void delNodeByName(string _name, osg::Group* _group);
 	void delTrailByName(string _name);
 
+	enum ETRAILMODEL
+	{
+		ETWHOLE = 1,
+		ETPART,
+	}ETRAILMODEL;
+
 	enum OBJECT
 	{
 		EOPLANE = 1,
@@ -174,7 +183,6 @@ private:
 
 	QMutex   _osgLock;
 	//QTimer _timer;
-	OsgTextNode *m_timeInfo;
 	PickHandle* _pickHandler;
 
 	//画飞机航迹

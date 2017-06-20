@@ -4,55 +4,55 @@
 
 showInfoUpdate::showInfoUpdate()
 {
-	setControl(0, 0, new infoLable("Name     :"));
-	setControl(0, 1, new infoLable("Longitude:"));
-	setControl(0, 2, new infoLable("Latitude :"));
-	setControl(0, 3, new infoLable("Elevation:"));
-	setControl(0, 4, new infoLable("Heading  :"));	
-	setControl(0, 5, new infoLable("Pitch    :"));
-	setControl(0, 6, new infoLable("Roll     :"));
-	setControl(0, 7, new infoLable("Speed    :"));
+	setControl(0, 0, new infoLable(ordeString11("Name:")));
+	setControl(0, 1, new infoLable(ordeString11("Longitude:")));
+	setControl(0, 2, new infoLable(ordeString11("Latitude:")));
+	setControl(0, 3, new infoLable(ordeString11("Elevation:")));
+	setControl(0, 4, new infoLable(ordeString11("Heading:")));	
+	setControl(0, 5, new infoLable(ordeString11("Pitch:")));
+	setControl(0, 6, new infoLable(ordeString11("Roll:")));
+	setControl(0, 7, new infoLable(ordeString11("Speed:")));
 
 	//UAV
-	UAV_name      = setControl(1, 0, new infoLable(""));
-	UAV_Longitude = setControl(1, 1, new infoLable(""));
-	UAV_Latitude  = setControl(1, 2, new infoLable(""));
-	UAV_Elevation = setControl(1, 3, new infoLable(""));
-	UAV_Heading   = setControl(1, 4, new infoLable(""));
-	UAV_Pitch     = setControl(1, 5, new infoLable(""));
-	UAV_Roll      = setControl(1, 6, new infoLable(""));
-	UAV_Speed     = setControl(1, 7, new infoLable(""));
+	UAV_name      = setControl(1, 0, new infoLable(ordeString7("")));
+	UAV_Longitude = setControl(1, 1, new infoLable(ordeString7("")));
+	UAV_Latitude  = setControl(1, 2, new infoLable(ordeString7("")));
+	UAV_Elevation = setControl(1, 3, new infoLable(ordeString7("")));
+	UAV_Heading   = setControl(1, 4, new infoLable(ordeString7("")));
+	UAV_Pitch     = setControl(1, 5, new infoLable(ordeString7("")));
+	UAV_Roll      = setControl(1, 6, new infoLable(ordeString7("")));
+	UAV_Speed     = setControl(1, 7, new infoLable(ordeString7("")));
 
 	//Ship
-	Ship_name	   = setControl(2, 0, new infoLable(""));
-	Ship_Longitude = setControl(2, 1, new infoLable(""));
-	Ship_Latitude  = setControl(2, 2, new infoLable(""));
-	Ship_Elevation = setControl(2, 3, new infoLable(""));
-	Ship_Heading   = setControl(2, 4, new infoLable(""));
-	Ship_Pitch     = setControl(2, 5, new infoLable(""));
-	Ship_Roll      = setControl(2, 6, new infoLable(""));
-	Ship_Speed     = setControl(2, 7, new infoLable(""));
+	Ship_name	   = setControl(2, 0, new infoLable(ordeString7("")));
+	Ship_Longitude = setControl(2, 1, new infoLable(ordeString7("")));
+	Ship_Latitude  = setControl(2, 2, new infoLable(ordeString7("")));
+	Ship_Elevation = setControl(2, 3, new infoLable(ordeString7("")));
+	Ship_Heading   = setControl(2, 4, new infoLable(ordeString7("")));
+	Ship_Pitch     = setControl(2, 5, new infoLable(ordeString7("")));
+	Ship_Roll      = setControl(2, 6, new infoLable(ordeString7("")));
+	Ship_Speed     = setControl(2, 7, new infoLable(ordeString7("")));
 
 	//Vehicle
-	Vehicle_name      = setControl(3, 0, new infoLable(""));
-	Vehicle_Longitude = setControl(3, 1, new infoLable(""));
-	Vehicle_Latitude  = setControl(3, 2, new infoLable(""));
-	Vehicle_Elevation = setControl(3, 3, new infoLable(""));
-	Vehicle_Heading   = setControl(3, 4, new infoLable(""));
-	Vehicle_Pitch     = setControl(3, 5, new infoLable(""));
-	Vehicle_Roll      = setControl(3, 6, new infoLable(""));
-	Vehicle_Speed     = setControl(3, 7, new infoLable(""));
+	Vehicle_name      = setControl(3, 0, new infoLable(ordeString7("")));
+	Vehicle_Longitude = setControl(3, 1, new infoLable(ordeString7("")));
+	Vehicle_Latitude  = setControl(3, 2, new infoLable(ordeString7("")));
+	Vehicle_Elevation = setControl(3, 3, new infoLable(ordeString7("")));
+	Vehicle_Heading   = setControl(3, 4, new infoLable(ordeString7("")));
+	Vehicle_Pitch     = setControl(3, 5, new infoLable(ordeString7("")));
+	Vehicle_Roll      = setControl(3, 6, new infoLable(ordeString7("")));
+	Vehicle_Speed     = setControl(3, 7, new infoLable(ordeString7("")));
 }
 
 
 void showInfoUpdate::updateInfo(int _type, string _name, double _long, double _lat, double _altitude, double _heading /*= 0.0*/, double _pitch /*= 0.0*/, double _roll /*= 0.0*/, double _speed /*= 0.0*/)
 {
-	string name = (QString::fromStdString(_name)).leftJustified(6, ' ').toStdString();
+	string name = ordeString7(_name);
 
 	switch (_type)
 	{
 	case 1:
-		UAV_name->setText(_name);		
+		UAV_name->setText(name);
 		UAV_Longitude->setText(stringNumber(_long));
 		UAV_Latitude->setText(stringNumber(_lat));
 		UAV_Elevation->setText(stringNumber(_altitude));
@@ -62,7 +62,7 @@ void showInfoUpdate::updateInfo(int _type, string _name, double _long, double _l
 		UAV_Speed->setText(stringNumber(_speed));
 		break;
 	case 2:
-		Ship_name->setText(_name);
+		Ship_name->setText(name);
 		Ship_Longitude->setText(stringNumber(_long));
 		Ship_Latitude->setText(stringNumber(_lat));
 		Ship_Elevation->setText(stringNumber(_altitude));
@@ -72,7 +72,7 @@ void showInfoUpdate::updateInfo(int _type, string _name, double _long, double _l
 		Ship_Speed->setText(stringNumber(_speed));
 		break;
 	case 3:
-		Vehicle_name->setText(_name);
+		Vehicle_name->setText(name);
 		Vehicle_Longitude->setText(stringNumber(_long));
 		Vehicle_Latitude->setText(stringNumber(_lat));
 		Vehicle_Elevation->setText(stringNumber(_altitude));

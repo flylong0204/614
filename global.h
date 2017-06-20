@@ -2,9 +2,15 @@
 
 //extern QMutex G_mutex;
 
-#define DEFUAVOFFSET		200
+#define DEFUAVOFFSET		420
 #define DEFSHIPOFFSET		500
-#define DEFVEHICLEOFFSET	450
+#define DEFVEHICLEOFFSET	360
+
+#define DEFUAVSCALE		    100
+#define DEFSHIPSCALE		20
+#define DEFVEHICLESCALE		200
+
+
 
 /*位置信息数据结构*/
 typedef struct STRPOINT

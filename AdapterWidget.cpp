@@ -261,203 +261,191 @@ bool MousePositionHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIAc
 }
 
 
-//MyTrailCallBack::MyTrailCallBack(osg::Geode* geode, osgGA::CameraManipulator* nodeTM)
-//{
-//}
-//
-//
-//void MyTrailCallBack::updateDrawLine()
-//{
-//
-//}
-//
-//void MyTrailCallBack::operator()(osg::Node* node, osg::NodeVisitor* nv)
-//{
-//	updateData();
-//	//osg::MatrixTransform* mtTransform = static_cast<osg::MatrixTransform*>(node);
-//	osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(lineGeo->getDrawable(0));
-//	osg::Vec3Array* ver3Array = dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
-//	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _height, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
-//	osg::Matrix mt;
-//	point.createLocalToWorld(mt);
-//	mtSelf->setMatrix(mt);
-//
-//	mtRotate->setMatrix(osg::Matrixd::rotate(									\
-//		osg::DegreesToRadians(-(_roll - _rollPre)), osg::X_AXIS,				\
-//		osg::DegreesToRadians(-(_pitch - _pitchPre)), osg::Y_AXIS,				\
-//		osg::DegreesToRadians(-(_heading - _headingPre) + _headingOffset), osg::Z_AXIS));
-//	_headingPre = _heading;
-//	_pitchPre = _pitch;
-//	_rollPre = _roll;
-//	
-//	//无人机矩阵的转动
-//	//...
-//	if (nv && nv->getFrameStamp() && lineGeo)
-//	{
-//		if (frisFrame)
-//		{
-//			ver3Array->clear();
-//			frisFrame = false;
-//		}
-//
-//		//osg::Matrix matrix = mtTransform->getMatrix();
-//		osg::Vec3 crtVec3 = mt.getTrans();
-//		osg::Vec3 deltaVec3 = crtVec3 - preVec3;
-//		ver3Array->push_back(deltaVec3);
-//		ver3Array->dirty();
-//
-//		osg::DrawArrays* da = dynamic_cast<osg::DrawArrays*>(geometry->getPrimitiveSet(0));
-//		da->setFirst(0);
-//		da->setCount(ver3Array->size());
-//		da->dirty();
-//	}
-//
-//	traverse(node, nv);
-//}
-//
-////UAVTrail::UAVTrail(osg::Geode* geode, osgGA::CameraManipulator* nodeTM)
-////{
-//UAVTrail::UAVTrail(osg::MatrixTransform* _mtObjectRoot, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L)
-//{
-//	mtRotate = dynamic_cast<osg::MatrixTransform*>(_mtObjectRoot->getChild(0)->asGroup()->getChild(0));
-//	mtSelf = dynamic_cast<osg::MatrixTransform*>(mtRotate->getChild(0));
-//	lineGeo = dynamic_cast<osg::Geode*>(_mtObjectRoot->getUserData());
-//	_UAVdata = dynamic_cast<STRPlane*>(mtSelf->getUserData());
-//	_longitude = _UAVdata->longitude;
-//	_latitude = _UAVdata->latitude;
-//	_height = _UAVdata->altitude + DEFUAVOFFSET;
-//	frisFrame = true;
-//	_speed = 0.0;
-//	_heading = 0.0;
-//	_headingPre = 0.0;
-//	_pitch = 0.0;
-//	_pitchPre = 0.0;
-//	_roll = 0.0;
-//	_rollPre = 0.0;
-//	_degreePropeller = 0;
-//	_degreeDRudder_L = 0;
-//	_headingOffset = 0.0;
-//	
-//	propeller = _propeller;
-//	dRudder_L = _dRudder_L;
-//
-//	SrclatLong = osgEarth::SpatialReference::create("wgs84");
-//	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _height, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
-//	osg::Matrix mt;
-//	point.createLocalToWorld(mt);
-//	preVec3 = mt.getTrans();
-//}
+MyTrailCallBack::MyTrailCallBack(osg::Geode* geode, osgGA::CameraManipulator* nodeTM)
+{
+}
 
-//void UAVTrail::updateData()
-//{
-//	G_mutex.lock();
-//	_longitude = _UAVdata->longitude;
-//	_latitude  = _UAVdata->latitude;
-//	_height    = _UAVdata->altitude + DEFUAVOFFSET;
-//	_heading   = _UAVdata->heading;
-//	_pitch     = _UAVdata->pitching;
-//	_roll      = _UAVdata->roll;
-//	_speed     = _UAVdata->speed;
-//	G_mutex.unlock();
-//	if (_degreePropeller >= 360)
-//	{
-//		_degreePropeller = 0;
-//	}
-//	_degreePropeller += 20.0;
-//	_degreeDRudder_L = 0;
-//}
+void MyTrailCallBack::updateShowInfo()
+{
 
-//VehicleTrail::VehicleTrail(osg::Geode* geode, osgGA::NodeTrackerManipulator* nodeTM)
-//{
-//	geodeToFollow = geode;
-//	nodeTrack = nodeTM;
-//	SrclatLong = osgEarth::SpatialReference::create("wgs84");
-//	frisFrame = true;
-//	_latitude  = G_STRVehicle.latitude;
-//	_longitude = G_STRVehicle.longitude;
-//	_height    = G_STRVehicle.altitude;
-//	_speed = 100;
-//	_heading = 0.0;
-//	_pitch = 0.0;
-//	_roll = 0.0;
-//	_degreePropeller = 0.0;
-//	_degreeDRudder_L = 0.0;
-//	_crtPitch = 7.0;
-//	_crtHeading = 10;
-//	_crtRool = 10;
-//
-//	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _height, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
-//	osg::Matrix mt;
-//	point.createLocalToWorld(mt);
-//	preVec3 = mt.getTrans();
-//}
-//
-//void VehicleTrail::updateData()
-//{
-//	G_mutex.lock();
-//	_longitude = G_STRVehicle.longitude;
-//	_latitude  = G_STRVehicle.latitude;
-//	_height    = G_STRVehicle.altitude;
-//	_heading   = G_STRVehicle.heading;
-//	_speed     = G_STRVehicle.speed;
-//	_heading = 0.0;
-//	_pitch = 0.0;
-//	_roll = 0.0;
-//	_degreePropeller = 0.0;
-//	_degreeDRudder_L = 0.0;
-//	_crtPitch = 7.0;
-//	_crtHeading = 10;
-//	_crtRool = 10;
-//	G_mutex.unlock();
-//	if (_degreePropeller >= 360)
-//	{
-//		_degreePropeller = 0;
-//	}
-//}
-//
-//ShipTrail::ShipTrail(osg::Geode* geode, osgGA::NodeTrackerManipulator* nodeTM)
-//{
-//	geodeToFollow = geode;
-//	nodeTrack = nodeTM;
-//	SrclatLong = osgEarth::SpatialReference::create("wgs84");
-//	frisFrame = true;
-//	_latitude  = G_STRShip.latitude;
-//	_longitude = G_STRShip.longitude;
-//	_height    = G_STRShip.altitude;
-//	_height = 100;
-//	_speed = 100;
-//	_heading = 0.0;
-//	_pitch = 0.0;
-//	_roll = 0.0;
-//	_degreePropeller = 0.0;
-//	_degreeDRudder_L = 0.0;
-//	_crtPitch = 7.0;
-//	_crtHeading = 10;
-//	_crtRool = 10;
-//
-//	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _height, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
-//	osg::Matrix mt;
-//	point.createLocalToWorld(mt);
-//	preVec3 = mt.getTrans();
-//}
-//
-//void ShipTrail::updateData()
-//{
-//	G_mutex.lock();
-//	_longitude = G_STRShip.longitude;
-//	_latitude  = G_STRShip.latitude;
-//	_height	   = G_STRShip.altitude;
-//	_heading   = G_STRShip.heading;
-//	_speed     = G_STRShip.speed;
-//	G_mutex.unlock();
-//	if (_degreePropeller >= 360)
-//	{
-//		_degreePropeller = 0;
-//	}
-//}
+}
 
 
+void MyTrailCallBack::updateDrawLine()
+{
 
+}
+
+void MyTrailCallBack::operator()(osg::Node* node, osg::NodeVisitor* nv)
+{
+	updateData();
+	osg::MatrixTransform* mtTransform = static_cast<osg::MatrixTransform*>(node);
+	osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geodeToFollow->getDrawable(0));
+	osg::Vec3Array* ver3Array = dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
+	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _height, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
+	osg::Matrix mt;
+	point.createLocalToWorld(mt);
+	mtTransform->setMatrix(mt);
+
+
+	//无人机矩阵的转动
+	//...
+	updateShowInfo();
+	if (nv && nv->getFrameStamp() && geodeToFollow)
+	{
+		if (frisFrame)
+		{
+			ver3Array->clear();
+			frisFrame = false;
+		}
+
+		//osg::Matrix matrix = mtTransform->getMatrix();
+		osg::Vec3 crtVec3 = mt.getTrans();
+		osg::Vec3 deltaVec3 = crtVec3 - preVec3;
+		ver3Array->push_back(deltaVec3);
+		ver3Array->dirty();
+
+		osg::DrawArrays* da = dynamic_cast<osg::DrawArrays*>(geometry->getPrimitiveSet(0));
+		da->setFirst(0);
+		da->setCount(ver3Array->size());
+		da->dirty();
+	}
+
+	traverse(node, nv);
+}
+
+UAVTrail1::UAVTrail1(osg::Geode* geode, osgGA::CameraManipulator* nodeTM, STRDATA* _strData)
+{
+	geodeToFollow = geode;
+	nodeTrack = nodeTM;
+	SrclatLong = osgEarth::SpatialReference::create("wgs84");
+	frisFrame = true;
+	strData = _strData;
+	_latitude = _strData->latitude;
+	_longitude = _strData->longitude;
+	_height = _strData->altitude;
+	_speed = _strData->speed;
+	_heading = _strData->heading;;
+	_pitch = _strData->pitching;
+	_roll = _strData->roll;
+	_degreePropeller = 0.0;
+	_degreeDRudder_L = 0.0;
+	_crtPitch = 7.0;
+	_crtHeading = 10;
+	_crtRool = 10;
+
+	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _height, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
+	osg::Matrix mt;
+	point.createLocalToWorld(mt);
+	preVec3 = mt.getTrans();
+}
+
+void UAVTrail1::updateData()
+{
+	G_mutex.lock();
+	_longitude = strData->longitude;
+	_latitude = strData->latitude;
+	_height = strData->altitude;
+	_heading = strData->heading;
+	_pitch = strData->pitching;
+	_roll = strData->roll;
+	_speed = strData->speed;
+	G_mutex.unlock();
+}
+
+VehicleTrail::VehicleTrail(osg::Geode* geode, osgGA::NodeTrackerManipulator* nodeTM, STRDATA* _strData)
+{
+	geodeToFollow = geode;
+	nodeTrack = nodeTM;
+	strData = _strData;
+	SrclatLong = osgEarth::SpatialReference::create("wgs84");
+	frisFrame = true;
+	_latitude  = strData->latitude;
+	_longitude = strData->longitude;
+	_height    = strData->altitude;
+	_speed = 100;
+	_heading = 0.0;
+	_pitch = 0.0;
+	_roll = 0.0;
+	_degreePropeller = 0.0;
+	_degreeDRudder_L = 0.0;
+	_crtPitch = 7.0;
+	_crtHeading = 10;
+	_crtRool = 10;
+
+	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, _height, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
+	osg::Matrix mt;
+	point.createLocalToWorld(mt);
+	preVec3 = mt.getTrans();
+}
+
+void VehicleTrail::updateData()
+{
+	G_mutex.lock();
+	_longitude = strData->longitude;
+	_latitude  = strData->latitude;
+	_height    = strData->altitude;
+	_heading   = strData->heading;
+	_speed     = strData->speed;
+	_heading = 0.0;
+	_pitch = 0.0;
+	_roll = 0.0;
+	_degreePropeller = 0.0;
+	_degreeDRudder_L = 0.0;
+	_crtPitch = 7.0;
+	_crtHeading = 10;
+	_crtRool = 10;
+	G_mutex.unlock();
+	if (_degreePropeller >= 360)
+	{
+		_degreePropeller = 0;
+	}
+}
+
+ShipTrail::ShipTrail(osg::Geode* geode, osgGA::NodeTrackerManipulator* nodeTM, STRDATA* _strData)
+{
+	geodeToFollow = geode;
+	nodeTrack = nodeTM;
+	strData = _strData;
+	SrclatLong = osgEarth::SpatialReference::create("wgs84");
+	frisFrame = true;
+	_latitude  = strData->latitude;
+	_longitude = strData->longitude;
+	_height    = strData->altitude;
+	_height = 100;
+	_speed = 100;
+	_heading = 0.0;
+	_pitch = 0.0;
+	_roll = 0.0;
+	_degreePropeller = 0.0;
+	_degreeDRudder_L = 0.0;
+	_crtPitch = 7.0;
+	_crtHeading = 10;
+	_crtRool = 10;
+
+	osgEarth::GeoPoint point(SrclatLong, _longitude, _latitude, 0.0, osgEarth::AltitudeMode::ALTMODE_ABSOLUTE);
+	osg::Matrix mt;
+	point.createLocalToWorld(mt);
+	preVec3 = mt.getTrans();
+}
+
+void ShipTrail::updateData()
+{
+	G_mutex.lock();
+	_longitude = strData->longitude;
+	_latitude  = strData->latitude;
+	_height	   = strData->altitude;
+	_heading = strData->heading;
+	_speed = strData->speed;
+	G_mutex.unlock();
+	if (_degreePropeller >= 360)
+	{
+		_degreePropeller = 0;
+	}
+}
+
+
+#if 0
 
 void TrailBaseCallBack::operator()(osg::Node* node, osg::NodeVisitor* nv)
 {
@@ -478,7 +466,7 @@ void TrailBaseCallBack::operator()(osg::Node* node, osg::NodeVisitor* nv)
 }
 
 UVATrailCallBack::UVATrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, \
-	osgGA::CameraManipulator* nodeTM, STRPlane* UAVdata, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L)
+	osgGA::CameraManipulator* nodeTM, STRDATA* UAVdata, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L)
 {
 	mtSelf = _mtSelf;
 	mtRotate = _mtRotate;
@@ -526,7 +514,7 @@ void UVATrailCallBack::updateData()
 	
 }
 
-ShipTrailCallBack::ShipTrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRShip* shipData)
+ShipTrailCallBack::ShipTrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRDATA* shipData)
 {
 	mtSelf = _mtSelf;
 	mtRotate = _mtRotate;
@@ -557,7 +545,7 @@ void ShipTrailCallBack::updateData()
 
 }
 
-VehicleTrailCallBack::VehicleTrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRVehicle* VehicleData)
+VehicleTrailCallBack::VehicleTrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRDATA* VehicleData)
 {
 	mtSelf     = _mtSelf;
 	mtRotate   = _mtRotate;
@@ -679,7 +667,7 @@ void UAVCALLBACKUpdateTrail::operator()(osg::Node* node, osg::NodeVisitor* nv)
 }
 
 UAVCALLBACKUpdateTrail::UAVCALLBACKUpdateTrail(osg::MatrixTransform* _mtObject, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, \
-	STRPlane* UAVdata, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L, osgEarth::Annotation::FeatureNode* _featureNode)
+	STRDATA* UAVdata, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L, osgEarth::Annotation::FeatureNode* _featureNode)
 {
 	mtSelf = _mtObject;
 	mtRotate = _mtRotate;
@@ -748,4 +736,4 @@ void callBackBase::updataCommonData()
 	G_mutex.unlock();
 }
 
-
+#endif

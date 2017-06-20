@@ -5,7 +5,7 @@
 
 double UAV_longitude = 108.93;
 double UAV_latitude = 34.27;
-double UAV_altitude = 6000;
+double UAV_altitude = 0.0;
 double UAV_heading = 0.0;
 
 double Ship_longitude = 108.96;
@@ -156,38 +156,48 @@ void earthWnd::connectWidgets()
 
 }
 
-void earthWnd::updateUAVPosition(string name, double _long, double _lat, double _altitude, double _heading, double _pitch, double _roll, double _speed)
-{
-	earth->updateUAVPosition(name, osg::Vec3d(_long, _lat, _altitude), _heading, _pitch, _roll, _speed);
-}
-
 void earthWnd::addUAV(string name, QVector<STRPoint> _vecPoint)
 {
-	earth->addUAVWithoutTrail(name, _vecPoint);
+	//earth->addUAVByTrail(name, _vecPoint);
+	earth->addModel(1, name, _vecPoint, 1);
 	ComboUAV->addItem(QString::fromStdString(name));
-}
-
-void earthWnd::updateShipPosition(string name, double _long, double _lat, double _altitude, double _heading, double _speed)
-{
-	earth->updateShipPosition(name, _long, _lat, _altitude, _heading, _speed);
 }
 
 void earthWnd::addShip(string name, QVector<STRPoint> _vecPoint)
 {
-	earth->addShipByTrail(name, _vecPoint);
+	//earth->addShipByTrail(name, _vecPoint);
+	earth->addShip(name, _vecPoint.at(0).longitude, _vecPoint.at(0).latitude, _vecPoint.at(0).altitude);
+	//earth->addModel(2, name, _vecPoint, 1);
 	ComboShip->addItem(QString::fromStdString(name));
-}
-
-void earthWnd::updateVehiclePosition(string name, double _long, double _lat, double _altitude, double _heading, double _speed)
-{
-	earth->updateVehiclePosition(name, _long, _lat, _altitude, _heading, _speed);
 }
 
 void earthWnd::addVehicle(string name, QVector<STRPoint> _vecPoint)
 {
-	earth->addVehicleByTrail(name, _vecPoint);
+	//earth->addVehicleByTrail(name, _vecPoint);
+	earth->addModel(3, name, _vecPoint, 1);
 	ComboVehicle->addItem(QString::fromStdString(name));
 }
+
+void earthWnd::updateUAVPosition(string name, double _long, double _lat, double _altitude, double _heading, double _pitch, double _roll, double _speed)
+{
+	//earth->updateUAVPosition(name, osg::Vec3d(_long, _lat, _altitude), _heading, _pitch, _roll, _speed);
+	earth->updateModelPos(1, name, _long, _lat, _altitude, _heading, _pitch, _roll, _speed);
+}
+
+
+void earthWnd::updateShipPosition(string name, double _long, double _lat, double _altitude, double _heading, double _speed)
+{
+	//earth->updateShipPosition(name, _long, _lat, _altitude, _heading, _speed);
+	earth->updateModelPos(2, name, _long, _lat, _altitude, _heading, 0.0, 0.0, _speed);
+}
+
+void earthWnd::updateVehiclePosition(string name, double _long, double _lat, double _altitude, double _heading, double _speed)
+{
+	//earth->updateVehiclePosition(name, _long, _lat, _altitude, _heading, _speed);
+	earth->updateModelPos(3, name, _long, _lat, _altitude, _heading, 0.0, 0.0, _speed);
+}
+
+
 
 
 void earthWnd::delUAV(string name)
@@ -232,10 +242,12 @@ void earthWnd::slot_makeDataTest()
 	if (heading < 55.0)
 	{
 		heading += 0.1;
+		UAV_altitude += 12.0;
 	}
+	
 	UAV_longitude += 0.0001428;
 	UAV_latitude += 0.000085166;
-	UAV_altitude   = 6000;
+	//UAV_altitude   = 6000;
 	//G_STRPlane.heading += heading;
 	updateUAVPosition("UAV0", UAV_longitude, UAV_latitude, UAV_altitude, heading, 0, 0, 80);
 	updateUAVPosition("UAV1", UAV_longitude, UAV_latitude, UAV_altitude, heading, 0, 0, 0);
@@ -243,12 +255,12 @@ void earthWnd::slot_makeDataTest()
 	Ship_longitude += 0.0001428;
 	Ship_latitude += 0.000085166;
 	//G_STRPlane.heading += heading;
-	updateShipPosition("Ship0", Ship_longitude, Ship_latitude, Ship_altitude, heading, 60);
+	updateShipPosition("Ship0", Ship_longitude, Ship_latitude, 0.0, heading, 60);
 
 	Vehicle_longitude += 0.0001428;
 	Vehicle_latitude += 0.000085166;
 
-	updateVehiclePosition("Vehicle0", Vehicle_longitude, Vehicle_latitude, Vehicle_altitude, heading, 60);
+	updateVehiclePosition("Vehicle0", Vehicle_longitude, Vehicle_latitude, 0.0, heading, 60);
 }
 
 

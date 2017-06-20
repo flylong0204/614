@@ -49,6 +49,29 @@ using namespace std;
 
 #pragma  pack(1)
 
+typedef struct STRDATA : public osg::Referenced
+{
+	std::string name;
+	double longitude; //无人机经度 0~180
+	double latitude;  //无人机纬度 -90~90
+	double altitude;  //无人机飞行高度
+	double heading;    //无人机航向角
+	double pitching;   //无人机俯仰角
+	double roll;       //无人机横滚
+	double speed;
+	STRDATA(string _name, double _longitude, double _latitude, double _altitude, double _heading = 0.0, double _pitching = 0.0, double _roll = 0.0, double _speed = 0.0)
+	{
+		name = _name;
+		longitude = _longitude;
+		latitude = _latitude;
+		altitude = _altitude;
+		heading = _heading;
+		pitching = _pitching;
+		roll = _roll;
+		speed = _speed;
+	}
+}STRPData;
+
 /*无人机参数数据结构*/
 typedef struct STRPLANE : public osg::Referenced
 {
@@ -204,90 +227,68 @@ public:
 
 
 //未画航线
-//class  MyTrailCallBack : public osg::NodeCallback
-//{
-//public:
-//	inline MyTrailCallBack(){};
-//	MyTrailCallBack(osg::Geode* geode, osgGA::CameraManipulator* nodeTM);
-//	virtual inline ~MyTrailCallBack(){};
-//	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
-//	virtual void updateData() = 0;
-//	//void updateShowInfo();
-//	void updateDrawLine();
-//
-//	//osg::Geode* geodeToFollow;
-//	bool frisFrame;
-//	double _latitude;
-//	double _longitude;
-//	double _height;
-//	double _speed;
-//	double _heading;		//航向角
-//	double _pitch;
-//	double _roll;
-//	double _headingPre;
-//	double _pitchPre;
-//	double _rollPre;
-//	double _headingOffset;
-//	osgGA::CameraManipulator* nodeTrack;
-//	const osgEarth::SpatialReference* SrclatLong;
-//	osg::MatrixTransform* mtSelf;
-//	osg::MatrixTransform* mtRotate;
-//	QMutex G_mutex;
-//	osg::Geode* lineGeo;
-//
-//
-//	//double _latitude, _longitude, _height, _speed, _heading, _pitch, _roll;
-//float _degreePropeller;
-//float _degreeDRudder_L;
-//short _crtPitch;			//当前俯仰
-//short _crtHeading;          //惯导航向
-////short _crtPitch;          //惯导俯仰
-//short _crtRool;             //惯导横滚
-//osgGA::CameraManipulator* nodeTrack;
-//const osgEarth::SpatialReference* SrclatLong;
-//	osg::Vec3 preVec3;
-//};
-//
-//class UAVTrail : public MyTrailCallBack
-//{
-//public:
-//	//UAVTrail(osg::Geode* geode, osgGA::CameraManipulator* nodeTM);
-//	UAVTrail(osg::MatrixTransform* _mtObjectRoot, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L);
-//	virtual inline ~UAVTrail(){};
-//	virtual void updateData();
-//
-//private:
-//	STRPlane* _UAVdata;
-//
-//	double _degreePropeller;
-//	double _degreeDRudder_L;
-//	osg::ref_ptr<osgSim::DOFTransform> propeller;
-//	osg::ref_ptr<osgSim::DOFTransform> dRudder_L;
-//};
+class  MyTrailCallBack : public osg::NodeCallback
+{
+public:
+	inline MyTrailCallBack(){};
+	MyTrailCallBack(osg::Geode* geode, osgGA::CameraManipulator* nodeTM);
+	virtual inline ~MyTrailCallBack(){};
+	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
+	virtual void updateData() = 0;
+	void updateShowInfo();
+	void updateDrawLine();
 
-//class ShipTrail : public MyTrailCallBack
-//{
-//public:
-//	inline ShipTrail(){};
-//	//ShipTrail(osg::Geode* geode, osgGA::NodeTrackerManipulator* nodeTM);
-//	ShipTrail(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRShip* shipData);
-//	virtual inline ~ShipTrail(){};
-//	virtual void updateData();
-//private:
-//
-//};
-//
-//class VehicleTrail : public MyTrailCallBack
-//{
-//public:
-//	inline VehicleTrail(){};
-//	//VehicleTrail(osg::Geode* geode, osgGA::NodeTrackerManipulator* nodeTM);
-//	VehicleTrail(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRVehicle* VehicleData);
-//	virtual inline ~VehicleTrail(){};
-//	virtual void updateData();
-//private:
-//
-//};
+	osg::Geode* geodeToFollow;
+	bool frisFrame;
+	double _latitude, _longitude, _height, _speed, _heading, _pitch, _roll;
+	float _degreePropeller;
+	float _degreeDRudder_L;
+	short _crtPitch;			//当前俯仰
+	short _crtHeading;          //惯导航向
+	//short _crtPitch;            //惯导俯仰
+	short _crtRool;             //惯导横滚
+	STRDATA* strData;
+	osgGA::CameraManipulator* nodeTrack;
+	const osgEarth::SpatialReference* SrclatLong;
+	osg::Vec3 preVec3;
+	QMutex G_mutex;
+};
+
+class UAVTrail1 : public MyTrailCallBack
+{
+public:
+	UAVTrail1(osg::Geode* geode, osgGA::CameraManipulator* nodeTM, STRDATA* _strData);
+	virtual inline ~UAVTrail1(){};
+	virtual void updateData();
+
+private:
+
+};
+
+class VehicleTrail : public MyTrailCallBack
+{
+public:
+	inline VehicleTrail(){};
+	VehicleTrail(osg::Geode* geode, osgGA::NodeTrackerManipulator* nodeTM, STRDATA* _strData);
+	virtual inline ~VehicleTrail(){};
+	virtual void updateData();
+private:
+
+};
+
+class ShipTrail : public MyTrailCallBack
+{
+public:
+	inline ShipTrail(){};
+	ShipTrail(osg::Geode* geode, osgGA::NodeTrackerManipulator* nodeTM, STRDATA* _strData);
+	virtual inline ~ShipTrail(){};
+	virtual void updateData();
+private:
+	STRDATA* strData;
+};
+
+
+#if 0
 
 class callBackBase : public osg::NodeCallback
 {
@@ -296,11 +297,10 @@ public:
 	callBackBase(osg::MatrixTransform* _mtObjectRoot, osgEarth::Annotation::FeatureNode* _featureNode = nullptr)
 	//callBackBase(osg::MatrixTransform* _mtObject, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, \
 	//	STRPlane* UAVdata, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L, osgEarth::Annotation::FeatureNode* _featureNode)
-	{
-		
-		if (1)
+	{	
+		if (_mtObjectRoot)
 		{
-			SrclatLong = osgEarth::SpatialReference::create("wgs84");
+			SrclatLong = osgEarth::SpatialReference::get("wgs84");
 			osg::ref_ptr<osg::MatrixTransform> mtObject = dynamic_cast<osg::MatrixTransform*>(_mtObjectRoot->getChild(0));
 			strData  = dynamic_cast<STRPlane*>(mtObject->getUserData());
 			mtRotate = dynamic_cast<osg::MatrixTransform*>(mtObject->getChild(0));
@@ -405,11 +405,11 @@ class UVATrailCallBack : public TrailBaseCallBack
 {
 public:
 	UVATrailCallBack(){};
-	UVATrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRPlane* UAVdata, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L);
+	UVATrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRDATA* UAVdata, osgSim::DOFTransform* _propeller, osgSim::DOFTransform* _dRudder_L);
 	virtual inline ~UVATrailCallBack(){};
 	virtual void updateData();
 
-	STRPlane* _UAVdata;
+	STRDATA* _UAVdata;
 	
 	double _degreePropeller;
 	double _degreeDRudder_L;
@@ -421,7 +421,7 @@ public:
 class UAVCALLBACKUpdateTrail : public UVATrailCallBack
 {
 public:
-	UAVCALLBACKUpdateTrail(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRPlane* UAVdata, osgSim::DOFTransform* _propeller, \
+	UAVCALLBACKUpdateTrail(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRDATA* UAVdata, osgSim::DOFTransform* _propeller, \
 		osgSim::DOFTransform* _dRudder_L, osgEarth::Annotation::FeatureNode* _featureNode);
 	virtual inline ~UAVCALLBACKUpdateTrail(){};
 	virtual void operator()(osg::Node* node, osg::NodeVisitor* nv);
@@ -435,22 +435,21 @@ public:
 class ShipTrailCallBack : public TrailBaseCallBack
 {
 public:
-	ShipTrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRShip* shipData);
+	ShipTrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRDATA* shipData);
 	virtual inline ~ShipTrailCallBack(){};
 	virtual void updateData();
 private:
-	STRShip* _shipData;
+	STRDATA* _shipData;
 };
 
 class VehicleTrailCallBack : public TrailBaseCallBack
 {
 public:
-	VehicleTrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRVehicle* VehicleData);
+	VehicleTrailCallBack(osg::MatrixTransform* _mtSelf, osg::MatrixTransform* _mtRotate, osgGA::CameraManipulator* nodeTM, STRDATA* VehicleData);
 	virtual inline ~VehicleTrailCallBack(){};
 	virtual void updateData();
 private:
-	STRVehicle* _VehicleData;
+	STRDATA* _VehicleData;
 };
 
-
-
+#endif

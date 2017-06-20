@@ -24,39 +24,12 @@
 #include <QMessageBox>
 
 #include <osgEarthUtil/MouseCoordsTool>
+#include "TrailBase.h"
 
-osg::ref_ptr<osg::MatrixTransform>  g_mtRotateface;
 
 double earthRotationDegree = -170;
 int earthWidget::_count = 0;
 int earthWidget::mInterval = 0;
-
-osgEarth::Util::Controls::LabelControl* readout;
-osgEarth::Util::Controls::LabelControl* rightText;
-osgEarth::Util::Controls::LabelControl* leftText;
-
-LabelControl*  LP_UAV_name = 0L;		    
-LabelControl*  LP_UAV_Longitude = 0L;		//经度
-LabelControl*  LP_UAV_Latitude = 0L;		//纬度
-LabelControl*  LP_UAV_Elevation = 0L;		//高程
-LabelControl*  LP_UAV_Velocity = 0L;		//速度
-LabelControl*  LP_UAV_Heading = 0L;			//航向
-LabelControl*  LP_UAV_Pitch = 0L;			//俯仰
-LabelControl*  LP_UAV_Roll = 0L;			//滚转
-
-LabelControl*  LP_Ship_name = 0L;
-LabelControl*  LP_Ship_Longitude = 0L;		//经度
-LabelControl*  LP_Ship_Latitude = 0L;		//纬度
-LabelControl*  LP_Ship_Elevation = 0L;		//高程
-LabelControl*  LP_Ship_Heading = 0L;		//航向
-LabelControl*  LP_Ship_Velocity = 0L;		//速度
-
-LabelControl*  LP_Vehicle_name = 0L;
-LabelControl*  LP_Vehicle_Longitude = 0L;		//经度
-LabelControl*  LP_Vehicle_Latitude = 0L;		//纬度
-LabelControl*  LP_Vehicle_Elevation = 0L;		//高程
-LabelControl*  LP_Vehicle_Heading = 0L;		    //航向
-LabelControl*  LP_Vehicle_Velocity = 0L;		//速度
 
 earthWidget::earthWidget(QWidget* parent) : AdapterWidget(parent)
 {
@@ -312,81 +285,28 @@ void earthWidget::addLabel()
 	osgEarth::Symbology::Style labelStyle;
 	labelStyle.getOrCreate<osgEarth::Symbology::TextSymbol>()->alignment() = osgEarth::Symbology::TextSymbol::ALIGN_CENTER_CENTER;
 	labelStyle.getOrCreate<osgEarth::Symbology::TextSymbol>()->fill()->color() = osgEarth::Symbology::Color::Yellow;
-	pathStyle.getOrCreate<LineSymbol>()->stroke()->color() = Color::White;
-	pathStyle.getOrCreate<LineSymbol>()->stroke()->width() = 1.0f;
-	pathStyle.getOrCreate<LineSymbol>()->tessellationSize() = 75000;
-	pathStyle.getOrCreate<PointSymbol>()->size() = 2;
-	pathStyle.getOrCreate<PointSymbol>()->fill()->color() = Color::White;
-	pathStyle.getOrCreate<AltitudeSymbol>()->clamping() = AltitudeSymbol::CLAMP_TO_TERRAIN;
-	pathStyle.getOrCreate<AltitudeSymbol>()->technique() = AltitudeSymbol::TECHNIQUE_GPU;
+	//pathStyle.getOrCreate<LineSymbol>()->stroke()->color() = Color::White;
+	//pathStyle.getOrCreate<LineSymbol>()->stroke()->width() = 1.0f;
+	//pathStyle.getOrCreate<LineSymbol>()->tessellationSize() = 75000;
+	//pathStyle.getOrCreate<PointSymbol>()->size() = 2;
+	//pathStyle.getOrCreate<PointSymbol>()->fill()->color() = Color::White;
+	//pathStyle.getOrCreate<AltitudeSymbol>()->clamping() = AltitudeSymbol::CLAMP_TO_TERRAIN;
+	//pathStyle.getOrCreate<AltitudeSymbol>()->technique() = AltitudeSymbol::TECHNIQUE_GPU;
 
-	//添加北京和西安地标
 	osgEarth::Symbology::Style pm;
 	pm.getOrCreate<osgEarth::Symbology::IconSymbol>()->url()->setLiteral("../data/placemark32.png");
 	pm.getOrCreate<osgEarth::Symbology::IconSymbol>()->declutter() = true;
 	pm.getOrCreate<osgEarth::Symbology::TextSymbol>()->halo() = osgEarth::Symbology::Color("#5f5f5f");
 
-	// bunch of pins:
 	_root->addChild(new osgEarth::Annotation::PlaceNode(_pMapNode, osgEarth::GeoPoint(m_pGeoSRS, 117.5, 39.38), "Beijing", pm));
 	_root->addChild(new osgEarth::Annotation::PlaceNode(_pMapNode, osgEarth::GeoPoint(m_pGeoSRS, 108.93, 34.27), "Xian", pm));
+	
 }
 
 void earthWidget::createLabels()
 {
-	//下面是设置一个控件，grid的意思是用格网去布局里面的小控件
-	// Make the readout:
-	//grid = new showInfoUpdate();
-	//_canvas->addChild(grid);
-
-	/*
-	//grid->getOrCreateStateSet()->
-	//设置几个Label文字控件显示在场景中的第行
-	osg::Vec4f vcolor(255.0,255.0,255.0,1.0);
-	grid->setControl(0, 0, new LabelControl("UAV:"));
-	grid->setControl(0, 1, new LabelControl("Longitude:"));
-	grid->setControl(0, 2, new LabelControl("Latitude:"));
-	grid->setControl(0, 3, new LabelControl("Elevation:"));
-	grid->setControl(0, 4, new LabelControl("Heading:"));	//航向
-	grid->setControl(0, 7, new LabelControl("Speed:"));	
-	grid->setControl(0, 5, new LabelControl("Pitch:"));
-	grid->setControl(0, 6, new LabelControl("Roll:"));
-	//设置几个Label文字控件显示在场景中的第行
-	LP_UAV_name = grid->setControl(1, 0, new LabelControl("", osg::Vec4(1.0, 1.0, 1.0, 1.0)));
-	LP_UAV_Longitude = grid->setControl(1, 1, new LabelControl("", vcolor));
-	LP_UAV_Latitude = grid->setControl(1, 2, new LabelControl("", osg::Vec4(1.0, 0.0, 0.0, 1.0)));
-	LP_UAV_Elevation = grid->setControl(1, 3, new LabelControl(""));
-	LP_UAV_Heading   = grid->setControl(1, 4, new LabelControl(""));
-	LP_UAV_Velocity  = grid->setControl(1, 7, new LabelControl(""));
-	LP_UAV_Pitch     = grid->setControl(1, 5, new LabelControl(""));
-	LP_UAV_Roll      = grid->setControl(1, 6, new LabelControl(""));
-
-	grid->setControl(2, 0, new LabelControl("Ship:"));
-	grid->setControl(2, 1, new LabelControl("Longitude:"));
-	grid->setControl(2, 2, new LabelControl("Latitude:"));
-	grid->setControl(2, 3, new LabelControl("Elevation:"));
-	grid->setControl(2, 4, new LabelControl("Heading:"));
-	grid->setControl(2, 5, new LabelControl("Speed:"));
-	LP_Ship_name      = grid->setControl(3, 0, new LabelControl(""));
-	LP_Ship_Longitude = grid->setControl(3, 1, new LabelControl(""));		//经度
-	LP_Ship_Latitude  = grid->setControl(3, 2, new LabelControl(""));		//纬度
-	LP_Ship_Elevation = grid->setControl(3, 3, new LabelControl(""));		//高程
-	LP_Ship_Heading   = grid->setControl(3, 4, new LabelControl(""));		//高程
-	LP_Ship_Velocity  = grid->setControl(3, 5, new LabelControl(""));		//速度
-
-	grid->setControl(4, 0, new LabelControl("Vehicle:"));
-	grid->setControl(4, 1, new LabelControl("Longitude:"));
-	grid->setControl(4, 2, new LabelControl("Latitude:"));
-	grid->setControl(4, 3, new LabelControl("Elevation:"));
-	grid->setControl(4, 4, new LabelControl("Heading:"));
-	grid->setControl(4, 5, new LabelControl("Speed:"));
-	LP_Vehicle_name      = grid->setControl(5, 0, new LabelControl(""));
-	LP_Vehicle_Longitude = grid->setControl(5, 1, new LabelControl(""));		//经度
-	LP_Vehicle_Latitude  = grid->setControl(5, 2, new LabelControl(""));		//纬度
-	LP_Vehicle_Elevation = grid->setControl(5, 3, new LabelControl(""));		//高程
-	LP_Vehicle_Heading   = grid->setControl(5, 4, new LabelControl(""));		//高程
-	LP_Vehicle_Velocity  = grid->setControl(5, 5, new LabelControl(""));		//速度
-
-	*/
+	grid = new showInfoUpdate();
+	_canvas->addChild(grid);
 }
 
 void earthWidget::addUAVWithoutTrail(string _name, QVector<STRPoint> _vecPoint)
@@ -427,12 +347,22 @@ void earthWidget::addUAVWithoutTrail(string _name, QVector<STRPoint> _vecPoint)
 
 	mtUAV->setMatrix(matrix);
 	mtUAV->setUserData(strUAV);
+
+	osg::ref_ptr<osg::MatrixTransform> mtLine = new osg::MatrixTransform;
+	//mtLine->addChild(createTrailLine());
+	osg::Node* goede = createTrailLine();
+	setTrailStyle(goede, osg::Vec4(129.0 / 255.0, 194.0 / 255.0, 194.0 / 255.0, 0.7));
+	mtLine->addChild(goede);
+
 	mtRootUAV->addChild(mtUAV);
+	mtRootUAV->addChild(mtLine);
 
 	//UAVCALLBACKUpdateTrail* ut = new UAVCALLBACKUpdateTrail(mtUAV, mtRotateface, m_pTrackNode, strUAV, propeller, dRudder_L, createTrail(EOPLANE, _name, _vecPoint));
-	UAVCallBack* ut = new UAVCallBack(mtRootUAV, createTrail(EOPLANE, _name, _vecPoint));
+	//UAVCallBack* ut = new UAVCallBack(mtRootUAV, createTrail(EOPLANE, _name, _vecPoint));
 	//UAVCallBack* ut = new UAVCallBack(mtUAV, mtRotateface, m_pTrackNode, strUAV, propeller, dRudder_L, createTrail(EOPLANE, _name, _vecPoint));
-	mtUAV->addUpdateCallback(ut);
+	//UAVTrail1* ut = new UAVTrail1(dynamic_cast<osg::Geode*>(goede), m_pTrackNode, strUAV);
+
+	//mtUAV->addUpdateCallback(ut);
 
 }
 //void earthWidget::addUAV(string name, double _long, double _lat, double _altitude)
@@ -485,58 +415,55 @@ void earthWidget::addUAVWithoutTrail(string _name, QVector<STRPoint> _vecPoint)
 //	mtUAV->addUpdateCallback(UAVTrailCallBack);
 //}
 
-//void earthWidget::addShip(string name, double _long, double _lat, double _altitude)
-//{
-//	G_STRShip.longitude = _long;
-//	G_STRShip.latitude = _lat;
-//	G_STRShip.altitude = _altitude;
-//
-//	osg::ref_ptr<osg::MatrixTransform> mtRootShip = new osg::MatrixTransform;
-//	m_ShipRoot->addChild(mtRootShip);
-//
-//	nodeShip = osgDB::readNodeFile("./moudles/054Ship.ive");
-//	if (NULL == nodeShip)
-//	{
-//		QMessageBox::about(NULL, "Error", "Can not open cow.osg file");
-//		return;
-//	}
-//	nodeShip->setName(name);
-//
-//	osg::ref_ptr<osg::MatrixTransform> mtself = new osg::MatrixTransform;
-//	mtself->setMatrix(osg::Matrixd::scale(3, 3, 3) * osg::Matrixd::rotate(osg::DegreesToRadians(-50.0), osg::Vec3(0, 0, 1))*\
-//		osg::Matrixd::translate(osg::Vec3(210, 650, 340)));
-//	mtself->addChild(nodeShip);
-//
-//	osg::ref_ptr<osg::MatrixTransform> mtship = new osg::MatrixTransform;
-//	mtship->addChild(mtself);
-//
-//	osg::ref_ptr<osg::MatrixTransform> mtLine = new osg::MatrixTransform;
-//	//mtLine->addChild(createTrailLine());
-//	osg::Node* goede = createTrailLine();
-//	setTrailStyle(goede, osg::Vec4(129.0 / 255.0, 194.0 / 255.0, 194.0 / 255.0, 0.7));
-//	mtLine->addChild(goede);
-//
-//	const osgEarth::SpatialReference* latLong = osgEarth::SpatialReference::get("wgs84");
-//	osgEarth::GeoPoint point(latLong, G_STRShip.longitude, G_STRShip.latitude, G_STRShip.altitude, osgEarth::ALTMODE_ABSOLUTE);
-//	osg::Matrix matrix;
-//	point.createLocalToWorld(matrix);
-//
-//	mtLine->setMatrix(osg::Matrixd::translate(matrix.getTrans())*osg::Matrixd::translate(osg::Vec3(0, 0, 550)));
-//	mtship->setMatrix(osg::Matrixd::translate(matrix.getTrans()));
-//
-//	mtRootShip->addChild(mtship);
-//	mtRootShip->addChild(mtLine);
-//
-//	m_pTrackShip = new osgGA::NodeTrackerManipulator;
-//	m_pTrackShip->setHomePosition(osg::Vec3(-600, -500, 800), osg::Vec3(), osg::Z_AXIS);
-//	m_pTrackShip->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
-//	m_pTrackShip->setRotationMode(osgGA::NodeTrackerManipulator::TRACKBALL);
-//	m_pTrackShip->setTrackNode(nodeShip);
-//
-//	ShipTrail* shipTrail = new ShipTrail(dynamic_cast<osg::Geode*>(goede), m_pTrackShip);
-//	mtship->addUpdateCallback(shipTrail);
-//
-//}
+
+
+void earthWidget::addShip(string name, double _long, double _lat, double _altitude)
+{
+	STRDATA* strData = new STRDATA(name, _long, _lat, _altitude);
+
+	osg::ref_ptr<osg::MatrixTransform> mtRootShip = new osg::MatrixTransform; 
+	mtRootShip->setName(name);
+	m_ShipRoot->addChild(mtRootShip);
+
+	nodeShip = osgDB::readNodeFile("./moudles/054Ship.ive");
+	if (NULL == nodeShip)
+	{
+		QMessageBox::about(NULL, "Error", "Can not open cow.osg file");
+		return;
+	}
+	nodeShip->setName(name);
+
+	osg::ref_ptr<osg::MatrixTransform> mtself = new osg::MatrixTransform;
+	mtself->setMatrix(osg::Matrixd::scale(3, 3, 3) * osg::Matrixd::rotate(osg::DegreesToRadians(-50.0), osg::Vec3(0, 0, 1))*\
+		osg::Matrixd::translate(osg::Vec3(210, 650, 340)));
+	mtself->addChild(nodeShip);
+
+	osg::ref_ptr<osg::MatrixTransform> mtship = new osg::MatrixTransform;
+	mtship->addChild(mtself);
+
+	osg::ref_ptr<osg::MatrixTransform> mtLine = new osg::MatrixTransform;
+	//mtLine->addChild(createTrailLine());
+	osg::Node* goede = createTrailLine();
+	setTrailStyle(goede, osg::Vec4(129.0 / 255.0, 194.0 / 255.0, 194.0 / 255.0, 0.7));
+	mtLine->addChild(goede);
+
+	const osgEarth::SpatialReference* latLong = osgEarth::SpatialReference::get("wgs84");
+	osgEarth::GeoPoint point(latLong, _long, _lat, _altitude, osgEarth::ALTMODE_ABSOLUTE);
+	osg::Matrix matrix;
+	point.createLocalToWorld(matrix);
+
+	mtLine->setMatrix(osg::Matrixd::translate(matrix.getTrans())*osg::Matrixd::translate(osg::Vec3(0, 0, 550)));
+	mtship->setMatrix(osg::Matrixd::translate(matrix.getTrans()));
+
+	mtRootShip->addChild(mtship);
+	mtRootShip->addChild(mtLine);
+	mtRootShip->setUserData(strData);
+
+	ShipTrail* shipTrail = new ShipTrail(dynamic_cast<osg::Geode*>(goede), m_pTrackNode, strData);
+	//ShipTrail1* shipTrail = new ShipTrail1(dynamic_cast<osg::Geode*>(goede), m_pTrackNode, mtship, mtself, strData);
+	mtship->addUpdateCallback(shipTrail);
+
+}
 //void earthWidget::addVehicle(string name, double _long, double _lat, double _altitude)
 //{
 //	G_STRVehicle.longitude = _long;
@@ -596,11 +523,109 @@ void earthWidget::addUAVWithoutTrail(string _name, QVector<STRPoint> _vecPoint)
 //	//BuildTail(osg::Vec3(0, 10, 500), mtvehicle, mtRootVehicle);
 //}
 
+void earthWidget::addModel(int _type, string _name, QVector<STRPoint> _vecPoint, int _trailModel)
+{
+	if (_vecPoint.size() < 0)
+	{
+		return;
+	}
+
+	if (ETWHOLE == _trailModel)
+	{
+		createTrail(_type, _name, _vecPoint);
+	}
+	
+
+	switch (_type)
+	{
+	case EOPLANE:
+		addModel(EOPLANE, m_PlaneRoot, nodeUAV, _name, DEFUAVSCALE, DEFUAVOFFSET, _vecPoint.at(0).longitude, _vecPoint.at(0).latitude, _vecPoint.at(0).altitude, _trailModel);
+		break;
+	case EOSHIP:
+		addModel(EOSHIP, m_ShipRoot, nodeShip, _name, DEFSHIPSCALE, DEFSHIPOFFSET, _vecPoint.at(0).longitude, _vecPoint.at(0).latitude, _vecPoint.at(0).altitude, _trailModel);
+		break;
+	case EOVEHICLE:
+		addModel(EOVEHICLE, m_VehicleRoot, nodeVehicle, _name, DEFVEHICLESCALE, DEFSHIPOFFSET, _vecPoint.at(0).longitude, _vecPoint.at(0).latitude, _vecPoint.at(0).altitude, _trailModel);
+		break;
+	default:
+		break;
+	}
+}
+
+void earthWidget::addModel(int _type, osg::Group* _groupRoot, osg::Node* _node, string _name, int _scale, int _offset, double _long, double _lat, double _altitude, int _trailModel)
+{
+	STRPData* strData = new STRPData(_name, _long, _lat, _altitude + _offset);
+
+	osg::ref_ptr<osg::MatrixTransform> mtObjectRoot = new osg::MatrixTransform;
+	mtObjectRoot->setUserData(strData);
+	mtObjectRoot->setName(_name);
+	_groupRoot->addChild(mtObjectRoot);
+
+	osg::ref_ptr<osg::Group> nodeGroup = new osg::Group;
+	nodeGroup->addChild(_node);
+
+	osg::ref_ptr<osg::MatrixTransform> mtSelf = new osg::MatrixTransform;
+	mtSelf->setMatrix(osg::Matrixd::scale(_scale, _scale, _scale));
+	mtSelf->addChild(nodeGroup);
+
+	osg::ref_ptr<osg::MatrixTransform> mtRotate = new osg::MatrixTransform;
+	mtRotate->setMatrix(osg::Matrixd::rotate(osg::DegreesToRadians(0.f), osg::X_AXIS,
+		osg::DegreesToRadians(0.f), osg::Y_AXIS,
+		osg::DegreesToRadians(0.0f), osg::Z_AXIS));
+	mtRotate->addChild(mtSelf);
+
+	osg::ref_ptr<osg::MatrixTransform> mtObject = new osg::MatrixTransform;
+	mtObject->addChild(mtRotate);
+
+	osgEarth::GeoPoint point(m_pSrclatLong, strData->longitude, strData->latitude, strData->altitude, osgEarth::ALTMODE_ABSOLUTE);
+	osg::Matrixd matrix;
+	point.createLocalToWorld(matrix);
+	mtObject->setMatrix(matrix);
+
+	mtObjectRoot->addChild(mtObject);
+
+	TrailBase* pTrail;
+
+	if (ETPART == _trailModel)
+	{
+		osg::ref_ptr<osg::MatrixTransform> mtLine = new osg::MatrixTransform;
+		osg::Node* goede = createTrailLine();
+		//setTrailStyle(goede, osg::Vec4(129.0 / 255.0, 194.0 / 255.0, 194.0 / 255.0, 0.7));
+		mtLine->addChild(goede);
+		mtLine->setMatrix(matrix);
+
+		mtObject->addChild(mtLine);
+
+		pTrail = new UpdataWithTrail(mtObjectRoot);
+	}
+	else if (ETWHOLE == _trailModel)
+	{
+		switch (_type)
+		{
+		case EOPLANE:
+			pTrail = new UAVUpdateCallback(mtObjectRoot, propeller, dRudder_L, 0.0, 0.0);
+			break;
+		case EOSHIP:
+			pTrail = new TrailBase(mtObjectRoot);
+			break;
+		case EOVEHICLE:
+			pTrail = new TrailBase(mtObjectRoot);
+			break;
+		default:
+			break;
+		}
+	}
+	
+	mtObject->addUpdateCallback(pTrail);
+}
+
+#if 0
+
 void earthWidget::addUAVByTrail(string _name, QVector<STRPoint> _vecPoint)
 {
 	osg::ref_ptr<osg::Node> trailNode = createTrail(EOPLANE, _name, _vecPoint);
 
-	STRPlane* strUAV = new STRPlane(_name, _vecPoint.at(0).longitude, _vecPoint.at(0).latitude, _vecPoint.at(0).altitude + DEFUAVOFFSET);
+	STRDATA* strUAV = new STRDATA(_name, _vecPoint.at(0).longitude, _vecPoint.at(0).latitude, _vecPoint.at(0).altitude + DEFUAVOFFSET);
 
 	osg::ref_ptr<osg::MatrixTransform> mtRootUAV = new osg::MatrixTransform;
 	mtRootUAV->setUserData(trailNode);
@@ -633,9 +658,7 @@ void earthWidget::addUAVByTrail(string _name, QVector<STRPoint> _vecPoint)
 	mtUAV->setMatrix(matrix);
 	mtUAV->setUserData(strUAV);
 	mtRootUAV->addChild(mtUAV);
-
-	
-
+	//mtRootUAV->addChild(trailNode);
 	//osg::ref_ptr<osgSim::DOFTransform> pro = new osgSim::DOFTransform;
 	//pro->addChild(propeller);
 	//
@@ -645,7 +668,7 @@ void earthWidget::addUAVByTrail(string _name, QVector<STRPoint> _vecPoint)
 	UVATrailCallBack* ut = new UVATrailCallBack(mtUAV, mtRotateface, m_pTrackNode, strUAV, propeller, dRudder_L);
 	mtUAV->addUpdateCallback(ut);
 
-	//grid->updateInfo(EOPLANE, _name, strUAV->longitude, strUAV->latitude, strUAV->altitude, strUAV->heading, strUAV->pitching, strUAV->roll, strUAV->speed);
+	grid->updateInfo(EOPLANE, _name, strUAV->longitude, strUAV->latitude, strUAV->altitude, strUAV->heading, strUAV->pitching, strUAV->roll, strUAV->speed);
 }
 
 
@@ -681,7 +704,7 @@ void earthWidget::addShipByTrail(string _name, QVector<STRPoint> _vecPoint)
 
 	createTrail(EOSHIP, _name, _vecPoint);
 
-	STRShip* strSHIP = new STRShip(_name, _vecPoint.at(0).longitude, _vecPoint.at(0).latitude, _vecPoint.at(0).altitude + DEFSHIPOFFSET);
+	STRDATA* strSHIP = new STRDATA(_name, _vecPoint.at(0).longitude, _vecPoint.at(0).latitude, _vecPoint.at(0).altitude + DEFSHIPOFFSET);
 
 	osg::ref_ptr<osg::MatrixTransform> mtRootShip = new osg::MatrixTransform;
 	mtRootShip->setName(_name);
@@ -718,7 +741,7 @@ void earthWidget::addShipByTrail(string _name, QVector<STRPoint> _vecPoint)
 	mtship->addUpdateCallback(st);
 
 	//oceanDialog->addShip(_name);
-	//grid->updateInfo(EOSHIP, _name, strSHIP->longitude, strSHIP->latitude, strSHIP->altitude, strSHIP->heading, 0.0, 0.0, strSHIP->speed);
+	grid->updateInfo(EOSHIP, _name, strSHIP->longitude, strSHIP->latitude, strSHIP->altitude, strSHIP->heading, 0.0, 0.0, strSHIP->speed);
 }
 
 void earthWidget::addVehicleByTrail(string _name, QVector<STRPoint> _vecPoint)
@@ -726,7 +749,7 @@ void earthWidget::addVehicleByTrail(string _name, QVector<STRPoint> _vecPoint)
 
 	createTrail(EOVEHICLE, _name, _vecPoint);
 
-	STRVehicle* strVehicle = new STRVehicle(_name, _vecPoint.at(0).longitude, _vecPoint.at(0).latitude, _vecPoint.at(0).altitude + DEFVEHICLEOFFSET);
+	STRDATA* strVehicle = new STRDATA(_name, _vecPoint.at(0).longitude, _vecPoint.at(0).latitude, _vecPoint.at(0).altitude + DEFVEHICLEOFFSET);
 
 	osg::ref_ptr<osg::MatrixTransform> mtRootVehicle = new osg::MatrixTransform;
 	mtRootVehicle->setName(_name);
@@ -763,9 +786,10 @@ void earthWidget::addVehicleByTrail(string _name, QVector<STRPoint> _vecPoint)
 	VehicleTrailCallBack* vt = new VehicleTrailCallBack(mtvehicle, mtRotateface, m_pTrackNode, strVehicle);
 	mtvehicle->addUpdateCallback(vt);
 
-	//grid->updateInfo(EOVEHICLE, _name, strVehicle->longitude, strVehicle->latitude, strVehicle->altitude, strVehicle->heading, 0.0, 0.0, strVehicle->speed);
+	grid->updateInfo(EOVEHICLE, _name, strVehicle->longitude, strVehicle->latitude, strVehicle->altitude, strVehicle->heading, 0.0, 0.0, strVehicle->speed);
 }
 
+#endif
 static double a = 0;
 static double b = 0;
 static double c = 0;
@@ -852,6 +876,54 @@ void earthWidget::connectWidgets()
 	//connect(timer, SIGNAL(timeout()), this, SLOT(slot_test()));
 }
 
+void earthWidget::updateModelPos(int _type, string name, double _long, double _lat, double _altitude, double _heading, double _pitch, double _roll, double _speed)
+{
+	STRDATA strData("", _long, _lat, _altitude, _heading, _pitch, _roll, _speed);
+	switch (_type)
+	{
+	case EOPLANE:
+		updateModelPos(_type, name, currentUAVName, m_PlaneRoot, DEFUAVOFFSET, &strData);
+		break;
+	case EOSHIP:
+		updateModelPos(_type, name, currentShipName, m_ShipRoot, DEFSHIPOFFSET, &strData);
+		break;
+	case EOVEHICLE:
+		updateModelPos(_type, name, currentVehicleName, m_VehicleRoot, DEFVEHICLEOFFSET, &strData);
+		break;
+	default:
+		break;
+	}
+}
+
+void earthWidget::updateModelPos(int _type, string name, string currentObjectName, osg::Group* _group, int offset, STRDATA* _strData)
+{
+	int size = _group->getNumChildren();
+	for (int i = 0; i < size; ++i)
+	{
+		if (name == _group->getChild(i)->getName())
+		{
+			osg::MatrixTransform* mtObjectRoot = dynamic_cast<osg::MatrixTransform*>(_group->getChild(i));
+			STRDATA* strData = dynamic_cast<STRDATA*>(mtObjectRoot->getUserData());
+			strData->longitude = _strData->longitude;
+			strData->latitude  = _strData->latitude;
+			strData->altitude  = _strData->altitude + offset;
+			strData->speed     = _strData->speed;
+			strData->heading   = _strData->heading;
+			strData->pitching  = _strData->pitching;
+			strData->roll      = _strData->roll;
+
+			if (name == currentObjectName)
+			{
+				grid->updateInfo(_type, name, _strData->longitude, _strData->latitude, _strData->altitude, _strData->heading, _strData->pitching, _strData->roll, _strData->speed);
+			}
+
+			return;
+		}
+	}
+}
+
+#if 0
+
 
 void earthWidget::updateUAVPosition(string name, osg::Vec3d v3d, double _heading, double _pitch, double _roll, double _speed)
 {
@@ -863,19 +935,19 @@ void earthWidget::updateUAVPosition(string name, osg::Vec3d v3d, double _heading
 			if (name == m_PlaneRoot->getChild(i)->getName())
 			{
 				osg::MatrixTransform* mtUAVRoot = dynamic_cast<osg::MatrixTransform*>(m_PlaneRoot->getChild(i));
-				STRPlane* sp  = dynamic_cast<STRPlane*>(mtUAVRoot->getChild(0)->getUserData());
+				STRDATA* sp = dynamic_cast<STRDATA*>(mtUAVRoot->getUserData());
 				sp->longitude = v3d.x();
 				sp->latitude  = v3d.y();
-				sp->altitude  = v3d.z();
+				sp->altitude  = v3d.z() + DEFUAVOFFSET;
 				sp->speed     = _speed;
 				sp->heading   = _heading;
 				sp->pitching  = _pitch;
 				sp->roll      = _roll;
 
-				//if (name == currentUAVName)
-				//{
-				//	grid->updateInfo(EOPLANE, name, sp->longitude, sp->latitude, v3d.z(), sp->heading, sp->pitching, sp->roll, sp->speed);
-				//}
+				if (name == currentUAVName)
+				{
+					grid->updateInfo(EOPLANE, name, sp->longitude, sp->latitude, v3d.z(), sp->heading, sp->pitching, sp->roll, sp->speed);
+				}
 
 				return;
 			}
@@ -894,16 +966,16 @@ void earthWidget::updateShipPosition(string name, double _long, double _lat, dou
 			if (name == m_ShipRoot->getChild(i)->getName())
 			{
 				osg::MatrixTransform* mtShipRoot = dynamic_cast<osg::MatrixTransform*>(m_ShipRoot->getChild(i));
-				STRShip* ss = dynamic_cast<STRShip*>(mtShipRoot->getUserData());
+				STRDATA* ss = dynamic_cast<STRDATA*>(mtShipRoot->getUserData());
 				ss->longitude = _long;
 				ss->latitude  = _lat;
 				ss->speed     = _speed;
 				ss->heading   = _heading;
 
-				//if (name == currentShipName)
-				//{
-				//	grid->updateInfo(EOSHIP, name, ss->longitude, ss->latitude, _altitude, ss->heading, 0.0, 0.0, ss->speed);
-				//}
+				if (name == currentShipName)
+				{
+					grid->updateInfo(EOSHIP, name, ss->longitude, ss->latitude, _altitude, ss->heading, 0.0, 0.0, ss->speed);
+				}
 
 				return;
 			}
@@ -921,16 +993,16 @@ void earthWidget::updateVehiclePosition(string name, double _long, double _lat, 
 			if (name == m_VehicleRoot->getChild(i)->getName())
 			{
 				osg::MatrixTransform* mtVehicleRoot = dynamic_cast<osg::MatrixTransform*>(m_VehicleRoot->getChild(i));
-				STRVehicle* sv = dynamic_cast<STRVehicle*>(mtVehicleRoot->getUserData());
+				STRDATA* sv = dynamic_cast<STRDATA*>(mtVehicleRoot->getUserData());
 				sv->longitude = _long;
 				sv->latitude  = _lat;
 				sv->speed     = _speed;
 				sv->heading   = _heading;
 
-				//if (name == currentVehicleName)
-				//{
-				//	grid->updateInfo(EOVEHICLE, name, sv->longitude, sv->latitude, _altitude, sv->heading, 0.0, 0.0, sv->speed);
-				//}
+				if (name == currentVehicleName)
+				{
+					grid->updateInfo(EOVEHICLE, name, sv->longitude, sv->latitude, _altitude, sv->heading, 0.0, 0.0, sv->speed);
+				}
 
 				return;
 			}
@@ -938,6 +1010,7 @@ void earthWidget::updateVehiclePosition(string name, double _long, double _lat, 
 	}
 }
 
+#endif
 //void earthWidget::addPlanePath(osg::Vec3d vecStart, osg::Vec3d vecEnd)
 //{
 //	if (path == NULL)
@@ -1090,7 +1163,7 @@ FeatureNode* earthWidget::createTrail(int _target, string _name, QVector<STRPoin
 	int offset = 0;
 	if (EOPLANE == _target)
 	{
-		offset = DEFUAVOFFSET + 250;
+		offset = DEFUAVOFFSET;
 	}
 	osg::ref_ptr<osgEarth::Annotation::FeatureNode> pathNode = 0;	
 	osg::ref_ptr<osgEarth::Symbology::Geometry> path = new LineString();
@@ -1136,7 +1209,7 @@ FeatureNode* earthWidget::createTrail(int _target, string _name, QVector<STRPoin
 		_root->addChild(m_TrailRoot);
 	}
 	m_TrailRoot->addChild(pathNode);
-	return pathNode;
+	return pathNode.release();
 }
 
 
